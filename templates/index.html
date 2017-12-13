@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% if not current_user.is_anonymous %}
+Welcome, {{logged_user.username}}. You have {{logged_user.votes_left}} votes left.<br />
+<span style="color:blue;background-color:lavenderblush;">Your current ranking is {{logged_user.person.score}}</span><br />
+<a href="{{url_for('logout')}}">logout</a><br />
+<br />
+{% endif %}
+
+{% if current_user.is_anonymous %}
+<form action="/logmein" method="POST" style="background-color:lightblue; padding:5 0 10 5;">
+username <input type="text" name="username"><br />
+p@ssw3rd <input type="text" name="pw"><br />
+<input type="submit" value="log me in bruh">
+</form>
+{% endif %}
+
+
+{% for e in persons %}
+
+<span style="color:steelblue;">{{e.genus}} {{e.species}}</span> (&ldquo;{{e.nickname}}&rdquo;), {{e.score}}
+<span style="font-size:13px;color:
+{% if e.last_change >= 0 %}
+green;background-color:lightgreen;">&nbsp;&plus;
+{% else %}
+red;background-color:pink;">&nbsp;
+{% endif %}{{e.last_change}}&nbsp;</span>
+
+<br />
+{% endfor %}
+
+<br />
+{% if not current_user.is_anonymous %}
+    {% if logged_user.votes_left > 0 %}
+        random1: <a href="{{url_for('elo', winner_id=x.id, winner_score=x.score, loser_id=y.id, loser_score=y.score)}}">
+          {{x.id}}. {{x.species}}</a> ({{x.nickname}}), {{x.score}}
+
+        <br />
+        random2: <a href="{{url_for('elo', winner_id=y.id, winner_score=y.score, loser_id=x.id, loser_score=x.score)}}">
+          {{y.id}}. {{y.species}}</a> ({{y.nickname}}), {{y.score}}
+    {% else %}
+        No more votes for you! Thanks for playing.
+    {% endif %}
+{% else %}
+<span style="color:red;background-color:pink;">You must be logged in to vote, broh.</span>
+{% endif %}
+
+<br /><br /><br /><br /><br /><br />
+
+<div style="max-width:400px;">
+Elo scoring is an eponymous scoring system devised by a chess grandmaster. For every 400 point–increase, you are 10 times more likely to win over your opponent. That is, for every 100 games played between an 800- and 400-point player, 90 will go to the 800 pointer.<br /><br />
+
+Similarly, for every 100 games played between the 1200 pointer and 400 pointer, 99 will go to the 1200 pointer.
+
+<br /><br />
+Thus, in <b>SocietyRank</b>, a difference of 400 means that for every 10 hangs, any given individual is 10x times more likely to select the higher scored member. Fortunately, true hangs are not subject to such stringent constraints.
+
+<br /><br />Muuuuuhahahahaha!
+&#8212;pmg, 2017 december 7
+</div>
+
+{% endblock %}

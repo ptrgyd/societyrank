@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% if not current_user.is_anonymous %}
+{{current_user.username}}<br />
+{% endif %}
+
+{% for x in persons %}
+<span style="color:steelblue;">{{x.genus}} {{x.species}}</span>, {{x.score}}<br />
+{% endfor %}
+{% endblock %}
