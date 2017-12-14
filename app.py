@@ -1,13 +1,17 @@
 from flask import Flask, render_template,request,make_response,redirect,url_for,flash
 from flask_sqlalchemy import SQLAlchemy
+import sqlalchemy
 from sqlalchemy import desc
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user,login_required
 import random
 import math
+import os
+import psycopg2
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
 app.config['SECRET_KEY'] = 'secret'
 
 db = SQLAlchemy(app)
@@ -69,9 +73,9 @@ def index():
     logged_user = current_user
     # generating list stuff
     if current_user.is_anonymous:
-        persons = Person.query.all()
+        persons = Person.query.order_by(Person.id).all()
     else:
-        persons = Person.query.filter(Person.id != logged_user.person_id).all()
+        persons = Person.query.filter(Person.id != logged_user.person_id).order_by(Person.id).all()
 
     person1 = random.choice(persons)
     person2 = random.choice(persons)
