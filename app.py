@@ -6,13 +6,25 @@ from flask_login import LoginManager,UserMixin,login_user,logout_user,current_us
 import random
 import math
 import os
+import urlparse
 import psycopg2
+
+urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
+conn = psycopg2.connect(
+ database=url.path[1:],
+ user=url.username,
+ password=url.password,
+ host=url.hostname,
+ port=url.port
+)
 
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
 app.config['SECRET_KEY'] = 'secret'
+
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
