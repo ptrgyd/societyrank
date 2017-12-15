@@ -23,7 +23,7 @@ conn = psycopg2.connect(
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
 app.config['SECRET_KEY'] = 'secret'
 
 
