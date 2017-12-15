@@ -6,7 +6,7 @@ from flask_login import LoginManager,UserMixin,login_user,logout_user,current_us
 import random
 import math
 import os
-import urlparse
+# import urlparse
 import urllib.parse # ?
 import psycopg2
 
