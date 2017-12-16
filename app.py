@@ -7,8 +7,10 @@ import random
 import math
 import os
 # import urlparse
-import urllib.parse # ?
+import urllib.parse # required for heroku
 import psycopg2
+
+# THIS BLOCK REQUIRED FOR HEROKU
 
 urllib.parse.uses_netloc.append("postgres")
 url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
@@ -22,6 +24,7 @@ conn = psycopg2.connect(
 
 app = Flask(__name__)
 
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d33358058ac87b39216661f88fc8ff512f15a213dee7d11f0e67d3633c@ec2-184-73-202-112.compute-1.amazonaws.com:5432/d1gosfmdivcf2k'
 app.config['SECRET_KEY'] = 'secret'
@@ -146,15 +149,25 @@ def elo(winner_id,winner_score,loser_id,loser_score):
     winner_object = Person.query.filter_by(id=winner_id).first()
     loser_object = Person.query.filter_by(id=loser_id).first()
 
-    score_change = score_change(winner_score,loser_score)
+    if not loser_id == 6:
+        score_change = score_change(winner_score,loser_score)
 
-    updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
+        updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
 
-    winner_object.score = updated_winner_score
-    loser_object.score = updated_loser_score
+        winner_object.score = updated_winner_score
+        loser_object.score = updated_loser_score
 
-    winner_object.last_change = calc_change(winner_score,updated_winner_score)
-    loser_object.last_change = calc_change(loser_score,updated_loser_score)
+        winner_object.last_change = calc_change(winner_score,updated_winner_score)
+        loser_object.last_change = calc_change(loser_score,updated_loser_score)
+
+    else:
+        # score_change = 99
+
+        winner_object.score = winner_object.score - 9
+        loser_object.score = loser_object.score + 99
+
+        winner_object.last_change = -9
+        loser_object.last_change = 99
 
     current_votes = logged_user.votes_left
     logged_user.votes_left = decrement(current_votes)
@@ -172,6 +185,8 @@ def rankings():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(
+    # host='0.0.0.0', port=8800, debug=True
+    )
 
 # host='0.0.0.0', port=8800, debug=True
