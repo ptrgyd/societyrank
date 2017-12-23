@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<br />
+{% for x in transactions %}
+{{x.id}}.&nbsp;
+<span style="color:steelblue">{{x.user.username}}</span> :&nbsp;
+<span style="background-color:lightgreen;">{{x.winner.nickname}}</span>
+({{x.winner_score}}) <i>over</i>&nbsp;
+<span style="background-color:pink;">{{x.loser.nickname}}</span>
+({{x.loser_score}})
+with score change of {{x.score_change}}
+<br />
+{% endfor %}
+
+{% endblock %}

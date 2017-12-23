@@ -7,20 +7,20 @@ import random
 import math
 import os
 # import urlparse
-import urllib.parse # required for heroku
+# import urllib.parse # required for heroku
 import psycopg2
 
 # THIS BLOCK REQUIRED FOR HEROKU
-
-urllib.parse.uses_netloc.append("postgres")
-url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-conn = psycopg2.connect(
- database=url.path[1:],
- user=url.username,
- password=url.password,
- host=url.hostname,
- port=url.port
-)
+#
+# urllib.parse.uses_netloc.append("postgres")
+# url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+# conn = psycopg2.connect(
+#  database=url.path[1:],
+#  user=url.username,
+#  password=url.password,
+#  host=url.hostname,
+#  port=url.port
+# )
 
 app = Flask(__name__)
 
@@ -31,7 +31,7 @@ app.config['SECRET_KEY'] = 'secret'
 
 
 db = SQLAlchemy(app)
-# db = SQLAlchemy(os.environ["DATABASE_URL"])
+# db = SQLAlchemy(os.environ["DATABASE_URL"]) # Don't need this, I don't think
 login_manager = LoginManager()
 login_manager.init_app(app)
 # login_manager.login_message = 'Didnt work'
@@ -53,6 +53,28 @@ class User(UserMixin,db.Model):
 
     person_id = db.Column(db.Integer,db.ForeignKey('person.id'),nullable=False)
     person = db.relationship('Person',backref=db.backref('users', lazy=True))
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    voter_id = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False)
+    winner_id = db.Column(db.Integer,db.ForeignKey('person.id'),nullable=False)
+    loser_id = db.Column(db.Integer,db.ForeignKey('person.id'),nullable=False)
+    winner_score = db.Column(db.Integer)
+    loser_score = db.Column(db.Integer)
+    score_change = db.Column(db.Integer)
+
+    winner = db.relationship('Person',foreign_keys=[winner_id])
+    loser = db.relationship('Person',foreign_keys=[loser_id])
+    user = db.relationship('User',foreign_keys=[voter_id])
+
+# GLOBAL VARIABLES and FUNCTIONS
+
+# can't put a query in here (like current_rankings) because then it only
+# gets generated on app launch (and not on every refresh, as it should be)
+
+def get_current_rankings():
+    current_rankings = Person.query.order_by(desc(Person.score)).all()
+    return current_rankings
 
 def decrement(votes):
     updated_votes = votes - 1
@@ -85,17 +107,10 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/')
-def index():
+@app.route('/',methods=['GET'])
+def index(x=None,y=None):
     logged_user = current_user
-    # generating list stuff
-    if current_user.is_anonymous:
-        persons = Person.query.order_by(Person.id).all()
-    else:
-        persons = Person.query.filter(Person.id != logged_user.person_id).order_by(Person.id).all()
-
-    person1 = random.choice(persons)
-    person2 = random.choice(persons)
+    current_rankings = get_current_rankings()
 
     def pair_generator(person1,person2): # makes sure person1,2 are not same; if so, generates a new pair and checks again
         if person1.id == person2.id:
@@ -105,19 +120,37 @@ def index():
         else:
             return person1,person2
 
-    x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
+    if not logged_user.is_anonymous:
 
-    return render_template('index.html',persons=persons,x=x,y=y,logged_user=logged_user) # index refresh queries database to reflect new scores
+        current_votes = logged_user.votes_left
+        logged_user.votes_left = decrement(current_votes)
+
+        db.session.commit()
+
+        persons = Person.query.filter(Person.id != logged_user.person_id).all()
+        person1 = random.choice(persons)
+        person2 = random.choice(persons)
+        x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
+
+    return render_template('index.html',x=x,y=y,logged_user=logged_user,current_rankings=current_rankings) # index refresh queries database to reflect new scores
 
 
-@app.route('/elo/<winner_id>/<winner_score>/<loser_id>/<loser_score>')
+@app.route('/ello',methods=['POST'])
 @login_required
-def elo(winner_id,winner_score,loser_id,loser_score):
+def ello():
+
     logged_user = current_user
-    winner_score = int(winner_score)
-    loser_score = int(loser_score)
-    winner_id = int(winner_id)
-    loser_id = int(loser_id)
+
+    if request.method == 'POST':
+        winner_id = int(request.form['winner_id'])
+        winner_score = int(request.form['winner_score'])
+        loser_id = int(request.form['loser_id'])
+        loser_score = int(request.form['loser_score'])
+    else:
+        winner_score = int(winner_score)
+        loser_score = int(loser_score)
+        winner_id = int(winner_id)
+        loser_id = int(loser_id)
     k = 100
 
     def expected(higher_score,lower_score):
@@ -169,9 +202,17 @@ def elo(winner_id,winner_score,loser_id,loser_score):
         winner_object.last_change = -9
         loser_object.last_change = 99
 
-    current_votes = logged_user.votes_left
-    logged_user.votes_left = decrement(current_votes)
 
+    # create new transaction // must be AFTER score_change is calculated
+    new_transaction = Transaction(voter_id=logged_user.id,
+                                  winner_id=winner_id,
+                                  loser_id=loser_id,
+                                  winner_score=winner_score,
+                                  loser_score=loser_score,
+                                  score_change=winner_object.last_change)
+    db.session.add(new_transaction)
+
+    # commit all to database
     db.session.commit()
 
     return redirect(url_for('index'))
@@ -179,14 +220,24 @@ def elo(winner_id,winner_score,loser_id,loser_score):
 
 @app.route('/rankings')
 def rankings():
-    persons = Person.query.order_by(desc(Person.score)).all()
+    current_rankings = get_current_rankings()
 
-    return render_template('rankings.html',persons=persons)
+    return render_template('rankings.html',current_rankings=current_rankings)
+
+@app.route('/transactions')
+@login_required
+def transactions():
+    transactions = Transaction.query.all()
+
+    return render_template('transactions.html',transactions=transactions)
+
+@app.route('/about')
+def about():
+
+    return render_template('about.html')
 
 
 if __name__ == '__main__':
     app.run(
-    # host='0.0.0.0', port=8800, debug=True
+    host='0.0.0.0', port=8800, debug=True
     )
-
-# host='0.0.0.0', port=8800, debug=True

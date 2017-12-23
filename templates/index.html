@@ -3,8 +3,10 @@
 {% block content %}
 
 {% if not current_user.is_anonymous %}
-Welcome, {{logged_user.username}}. You have {{logged_user.votes_left}} votes left.<br />
-<span style="color:blue;background-color:lavenderblush;">Your current ranking is {{logged_user.person.score}}</span><br />
+Welcome, <b>{{logged_user.username}}</b>. You have {{logged_user.votes_left}} votes left.<br />
+<span style="color:blue;background-color:lavenderblush;">
+Your current <i>Elo score</i> is {{logged_user.person.score}}
+</span>&nbsp;&nbsp;&nbsp;
 <a href="{{url_for('logout')}}">logout</a><br />
 <br />
 {% endif %}
@@ -18,47 +20,81 @@ p@ssw3rd <input type="text" name="pw"><br />
 {% endif %}
 
 
-{% for e in persons %}
-
-<span style="color:steelblue;">{{e.genus}} {{e.species}}</span> (&ldquo;{{e.nickname}}&rdquo;), {{e.score}}
-<span style="font-size:13px;color:
-{% if e.last_change >= 0 %}
-green;background-color:lightgreen;">&nbsp;&plus;
-{% else %}
-red;background-color:pink;">&nbsp;
-{% endif %}{{e.last_change}}&nbsp;</span>
-
-<br />
-{% endfor %}
-
-<br />
 {% if not current_user.is_anonymous %}
+{% else %}
+<span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
+{% endif %}
+
+
+<br />
+
+{% if not current_user.is_anonymous %}
+<div style="background-color:palegreen; padding:5 0 10 5;">
     {% if logged_user.votes_left > 0 %}
-        random1: <a href="{{url_for('elo', winner_id=x.id, winner_score=x.score, loser_id=y.id, loser_score=y.score)}}">
-          {{x.id}}. {{x.species}}</a> ({{x.nickname}}), {{x.score}}
+        <form action="{{url_for('ello')}}" method="post" style="display:inline;">
+          <input type="submit" name="nickname" value="{{x.nickname}}"  />
+          <input type="hidden" name="winner_id" value="{{x.id}}"  />
+          <input type="hidden" name="winner_score" value="{{x.score}}"  />
+          <input type="hidden" name="loser_id" value="{{y.id}}"  />
+          <input type="hidden" name="loser_score" value="{{y.score}}"  />
+        </form>&nbsp;<i>v.</i>&nbsp;
+        <form action="{{url_for('ello')}}" method="post" style="display:inline;">
+          <input type="submit" name="nickname" value="{{y.nickname}}"  />
+          <input type="hidden" name="winner_id" value="{{y.id}}"  />
+          <input type="hidden" name="winner_score" value="{{y.score}}"  />
+          <input type="hidden" name="loser_id" value="{{x.id}}"  />
+          <input type="hidden" name="loser_score" value="{{x.score}}"  />
+        </form>
+
+        <br /><br />
+        random1: <a href="{{url_for('ello', winner_id=x.id, winner_score=x.score, loser_id=y.id, loser_score=y.score)}}">
+          {{x.id}}. {{x.species}}</a> ({{x.nickname}}),
+          <span style="font-family:monospace;">{{x.score}}</span>
 
         <br />
-        random2: <a href="{{url_for('elo', winner_id=y.id, winner_score=y.score, loser_id=x.id, loser_score=x.score)}}">
-          {{y.id}}. {{y.species}}</a> ({{y.nickname}}), {{y.score}}
+        random2: <a href="{{url_for('ello', winner_id=y.id, winner_score=y.score, loser_id=x.id, loser_score=x.score)}}">
+          {{y.id}}. {{y.species}}</a> ({{y.nickname}}),
+          <span style="font-family:monospace;">{{y.score}}</span>
     {% else %}
         No more votes for you! Thanks for playing.
     {% endif %}
+</div>
 {% else %}
-<span style="color:red;background-color:pink;">You must be logged in to vote, broh.</span>
+<span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
 {% endif %}
+<br />
+
+<table style="border:0px solid black;border-collapse:collapse;">
+{% for e in current_rankings %}
+
+<tr>
+
+<td style="text-align:right;">
+<span style="font-family:;font-size:13px;color:
+{% if e.last_change >= 0 %}
+green;background-color:lightgreen;">&nbsp;&plus;
+{% else %}
+red;background-color:lavenderblush;">&nbsp;
+{% endif %}{{e.last_change}}&nbsp;</span>
+</td>
+
+<td style="text-align:right;width:40px;padding-right:4px;">
+<span style="font-family:monospace;">{{e.score}}</span>
+</td>
+
+<td>
+<span style="color:steelblue;">{{e.genus}} {{e.species}}</span> (&ldquo;{{e.nickname}}&rdquo;)
+</td>
+</tr>
+
+{% endfor %}
+</table>
+
+<br />
+
 
 <br /><br /><br /><br /><br /><br />
 
-<div style="max-width:400px;">
-Elo scoring is an eponymous scoring system devised by a chess grandmaster. For every 400 point–increase, you are 10 times more likely to win over your opponent. That is, for every 100 games played between an 800- and 400-point player, 90 will go to the 800 pointer.<br /><br />
 
-Similarly, for every 100 games played between the 1200 pointer and 400 pointer, 99 will go to the 1200 pointer.
-
-<br /><br />
-Thus, in <b>SocietyRank</b>, a difference of 400 means that for every 10 hangs, any given individual is 10x times more likely to select the higher scored member. Fortunately, true hangs are not subject to such stringent constraints.
-
-<br /><br />Muuuuuhahahahaha!
-&#8212;pmg, 2017 december 7
-</div>
 
 {% endblock %}

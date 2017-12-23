@@ -6,7 +6,9 @@
 {{current_user.username}}<br />
 {% endif %}
 
-{% for x in persons %}
-<span style="color:steelblue;">{{x.genus}} {{x.species}}</span>, {{x.score}}<br />
+<ol style="margin:0 0 0 -16;">
+{% for x in current_rankings %}
+<li><span style="color:steelblue;">{{x.genus}} {{x.species}}</span>, <span style="font-family:monospace;">{{x.score}}</span></li>
 {% endfor %}
+</ol>
 {% endblock %}

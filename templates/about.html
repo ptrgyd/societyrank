@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<br /><br /><br /><br /><br />
+<div style="max-width:400px; border-top:1px solid gainsboro; padding-top:5;">
+<!-- <img src="{{url_for('static',filename='elo.jpg')}}" style="height:140px;padding:5 10 0 0; float:left;" class="w3-hover-sepia"/> -->
+<i>Elo scoring</i> is the eponymous scoring system devised by chess master and physics professor Arpad Elo. If you have a score 400 points greater than your opponent, you are roughly 9 times more likely to win over your opponent. <br /><br />So, for every one hundred games played between the 800-point player and 400-point player, ninety games (90%) will go to the 800 pointer.<br /><br />
+
+Similarly, for every hundred games played between the 1200 pointer and 400 pointer, 99 will go to the 1200 pointer.
+
+<br /><br />
+Thus, in <b>SocietyRank</b>, a difference of 400 means that for every ten hangs, any given individual is ~9x times more likely to select the higher scored society member. Fortunately, real-world hangs are not subject to such constraints. Happy ranking!
+
+<br /><br />Muuuuuhahahahaha!
+&#8212;pmg, 2017 december 7
+</div>
+{% endblock %}
