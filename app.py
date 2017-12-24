@@ -6,12 +6,12 @@ from flask_login import LoginManager,UserMixin,login_user,logout_user,current_us
 import random
 import math
 import os
-# import urlparse
-# import urllib.parse # required for heroku
-import psycopg2
 
 # THIS BLOCK REQUIRED FOR HEROKU
 #
+# import urllib.parse # required for heroku
+# import psycopg2
+
 # urllib.parse.uses_netloc.append("postgres")
 # url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
 # conn = psycopg2.connect(
@@ -84,6 +84,8 @@ def decrement(votes):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+persons = None
+
 @app.route('/logmein',methods=['POST'])
 def logmein():
     username = request.form['username']
@@ -97,6 +99,10 @@ def logmein():
 
     if user and user_pw == pw:
         login_user(user)
+        logged_user = current_user
+        persons_list = Person.query.filter(Person.id != logged_user.person_id).all()
+        global persons
+        persons = persons_list
         return redirect(url_for('index'))
     else:
         return redirect(url_for('index'))
@@ -127,7 +133,7 @@ def index(x=None,y=None):
 
         db.session.commit()
 
-        persons = Person.query.filter(Person.id != logged_user.person_id).all()
+        # persons = Person.query.filter(Person.id != logged_user.person_id).all()
         person1 = random.choice(persons)
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
