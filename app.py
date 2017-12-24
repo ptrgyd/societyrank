@@ -225,8 +225,12 @@ def rankings():
 @app.route('/transactions')
 @login_required
 def transactions():
-    transactions = Transaction.query.all()
-    return render_template('transactions.html',transactions=transactions)
+    logged_user = current_user
+    if logged_user.id == 1:
+        transactions = Transaction.query.all()
+        return render_template('transactions.html',transactions=transactions)
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/about')
 def about():
