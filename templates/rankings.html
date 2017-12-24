@@ -3,7 +3,8 @@
 {% block content %}
 
 {% if not current_user.is_anonymous %}
-{{current_user.username}}<br />
+Hey. Hey {{current_user.person.species}} ... what's wrong?<br />
+You worried, broh?<br /><br />
 {% endif %}
 
 <ol style="margin:0 0 0 -16;">

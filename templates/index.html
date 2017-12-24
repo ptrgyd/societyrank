@@ -3,7 +3,7 @@
 {% block content %}
 
 {% if not current_user.is_anonymous %}
-Welcome, <b>{{logged_user.username}}</b>. You have {{logged_user.votes_left}} votes left.<br />
+Welcome, <b>{{logged_user.username}}</b>.<br />
 <span style="color:blue;background-color:lavenderblush;">
 Your current <i>Elo score</i> is {{logged_user.person.score}}
 </span>&nbsp;&nbsp;&nbsp;
@@ -11,25 +11,20 @@ Your current <i>Elo score</i> is {{logged_user.person.score}}
 <br />
 {% endif %}
 
+
+
+
+
+
 {% if current_user.is_anonymous %}
 <form action="/logmein" method="POST" style="background-color:lightblue; padding:5 0 10 5;">
 username <input type="text" name="username"><br />
 p@ssw3rd <input type="text" name="pw"><br />
 <input type="submit" value="log me in bruh">
 </form>
-{% endif %}
-
-
-{% if not current_user.is_anonymous %}
-{% else %}
 <span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
-{% endif %}
-
-
-<br />
-
-{% if not current_user.is_anonymous %}
-<div style="background-color:palegreen; padding:5 0 10 5;">
+{% else %}
+<div style="background-color:palegreen; padding:15 0 15 15;">
     {% if logged_user.votes_left > 0 %}
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
           <input type="submit" name="nickname" value="{{x.nickname}}"  />
@@ -45,24 +40,18 @@ p@ssw3rd <input type="text" name="pw"><br />
           <input type="hidden" name="loser_id" value="{{x.id}}"  />
           <input type="hidden" name="loser_score" value="{{x.score}}"  />
         </form>
-
         <br /><br />
-        random1: <a href="{{url_for('ello', winner_id=x.id, winner_score=x.score, loser_id=y.id, loser_score=y.score)}}">
-          {{x.id}}. {{x.species}}</a> ({{x.nickname}}),
-          <span style="font-family:monospace;">{{x.score}}</span>
-
-        <br />
-        random2: <a href="{{url_for('ello', winner_id=y.id, winner_score=y.score, loser_id=x.id, loser_score=x.score)}}">
-          {{y.id}}. {{y.species}}</a> ({{y.nickname}}),
-          <span style="font-family:monospace;">{{y.score}}</span>
+        <span style="font-family:monospace;">You have {{logged_user.votes_left}} votes left.</span><br />
     {% else %}
         No more votes for you! Thanks for playing.
     {% endif %}
 </div>
-{% else %}
-<span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
 {% endif %}
+
 <br />
+
+
+
 
 <table style="border:0px solid black;border-collapse:collapse;">
 {% for e in current_rankings %}
@@ -90,10 +79,7 @@ red;background-color:lavenderblush;">&nbsp;
 {% endfor %}
 </table>
 
-<br />
-
-
-<br /><br /><br /><br /><br /><br />
+<br /><br /><br /><br /><br /><br /><br />
 
 
 

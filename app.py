@@ -31,10 +31,8 @@ app.config['SECRET_KEY'] = 'secret'
 
 
 db = SQLAlchemy(app)
-# db = SQLAlchemy(os.environ["DATABASE_URL"]) # Don't need this, I don't think
 login_manager = LoginManager()
 login_manager.init_app(app)
-# login_manager.login_message = 'Didnt work'
 
 class Person(db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -84,7 +82,8 @@ def decrement(votes):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-persons = None
+# need to set it to something while debugging, o/w throws error
+persons = Person.query.all()
 
 @app.route('/logmein',methods=['POST'])
 def logmein():
@@ -118,7 +117,8 @@ def index(x=None,y=None):
     logged_user = current_user
     current_rankings = get_current_rankings()
 
-    def pair_generator(person1,person2): # makes sure person1,2 are not same; if so, generates a new pair and checks again
+    # makes sure person1,2 are not same; if so, generates a new pair and checks again
+    def pair_generator(person1,person2):
         if person1.id == person2.id:
             person1 = random.choice(persons)
             person2 = random.choice(persons)
@@ -138,25 +138,18 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,logged_user=logged_user,current_rankings=current_rankings) # index refresh queries database to reflect new scores
+    return render_template('index.html',x=x,y=y,logged_user=logged_user,current_rankings=current_rankings)
+    # index refresh queries database to reflect new scores
 
 
 @app.route('/ello',methods=['POST'])
 @login_required
 def ello():
-
     logged_user = current_user
-
-    if request.method == 'POST':
-        winner_id = int(request.form['winner_id'])
-        winner_score = int(request.form['winner_score'])
-        loser_id = int(request.form['loser_id'])
-        loser_score = int(request.form['loser_score'])
-    else:
-        winner_score = int(winner_score)
-        loser_score = int(loser_score)
-        winner_id = int(winner_id)
-        loser_id = int(loser_id)
+    winner_id = int(request.form['winner_id'])
+    winner_score = int(request.form['winner_score'])
+    loser_id = int(request.form['loser_id'])
+    loser_score = int(request.form['loser_score'])
     k = 100
 
     def expected(higher_score,lower_score):
@@ -185,6 +178,7 @@ def ello():
         last_change = updated_score - entry_score
         return last_change
 
+    # might be able to eliminate this lookup -- ?
     winner_object = Person.query.filter_by(id=winner_id).first()
     loser_object = Person.query.filter_by(id=loser_id).first()
 
@@ -199,9 +193,8 @@ def ello():
         winner_object.last_change = calc_change(winner_score,updated_winner_score)
         loser_object.last_change = calc_change(loser_score,updated_loser_score)
 
+    # if user selects pete as loser!
     else:
-        # score_change = 99
-
         winner_object.score = winner_object.score - 9
         loser_object.score = loser_object.score + 99
 
@@ -227,19 +220,16 @@ def ello():
 @app.route('/rankings')
 def rankings():
     current_rankings = get_current_rankings()
-
     return render_template('rankings.html',current_rankings=current_rankings)
 
 @app.route('/transactions')
 @login_required
 def transactions():
     transactions = Transaction.query.all()
-
     return render_template('transactions.html',transactions=transactions)
 
 @app.route('/about')
 def about():
-
     return render_template('about.html')
 
 
