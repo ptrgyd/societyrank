@@ -128,17 +128,24 @@ def index(x=None,y=None):
 
     if not logged_user.is_anonymous:
 
-        current_votes = logged_user.votes_left
-        logged_user.votes_left = decrement(current_votes)
+        # current_votes = logged_user.votes_left
+        # logged_user.votes_left = decrement(current_votes)
 
+        # ^^ don't need above 2 lines; they create TWO objects, which slows psycopg2
+        # .. instead use more succint version below
+
+        logged_user.votes_left = decrement(logged_user.votes_left)
         db.session.commit()
 
-        # persons = Person.query.filter(Person.id != logged_user.person_id).all()
+        # the commit is also an object -- headsup
+        # so 5 objects on this page: db Object, commit object, logged_user, person1, person2
+
+        # # persons = Person.query.filter(Person.id != logged_user.person_id).all()
         person1 = random.choice(persons)
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,logged_user=logged_user,persons=persons)
+    return render_template('index.html',x=x,y=y,logged_user=logged_user)
     # index refresh queries database to reflect new scores
 
 
