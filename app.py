@@ -28,7 +28,7 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d33358058ac87b39216661f88fc8ff512f15a213dee7d11f0e67d3633c@ec2-184-73-202-112.compute-1.amazonaws.com:5432/d1gosfmdivcf2k'
 app.config['SECRET_KEY'] = 'secret'
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -72,6 +72,7 @@ class Transaction(db.Model):
 
 def get_current_rankings():
     current_rankings = Person.query.order_by(desc(Person.score)).all()
+    # current_rankings = session.query(Person).order_by(desc(Person.score)).all()
     return current_rankings
 
 def decrement(votes):
@@ -99,9 +100,8 @@ def logmein():
     if user and user_pw == pw:
         login_user(user)
         logged_user = current_user
-        persons_list = Person.query.filter(Person.id != logged_user.person_id).all()
         global persons
-        persons = persons_list
+        persons = Person.query.filter(Person.id != logged_user.person_id).all()
         return redirect(url_for('index'))
     else:
         return redirect(url_for('index'))
@@ -115,7 +115,7 @@ def logout():
 @app.route('/',methods=['GET'])
 def index(x=None,y=None):
     logged_user = current_user
-    current_rankings = get_current_rankings()
+    # current_rankings = get_current_rankings()
 
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
@@ -138,7 +138,7 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,logged_user=logged_user,current_rankings=current_rankings)
+    return render_template('index.html',x=x,y=y,logged_user=logged_user,persons=persons)
     # index refresh queries database to reflect new scores
 
 
