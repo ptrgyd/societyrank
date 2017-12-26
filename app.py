@@ -110,13 +110,6 @@ def logout():
 
 @app.route('/',methods=['GET'])
 def index(x=None,y=None):
-    # need to query with every refresh to pass updated scores into x.score,y.score
-    persons = persons = Person.query.filter(Person.id != current_user.person_id).all()
-
-    # don't set "logged_user" = current_user !
-    # this is just creating a superfluous object!
-    # current_user is ALREADY a User object
-
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
         if person1.id == person2.id:
@@ -127,20 +120,11 @@ def index(x=None,y=None):
             return person1,person2
 
     if not current_user.is_anonymous:
-
-        # current_votes = logged_user.votes_left
-        # logged_user.votes_left = decrement(current_votes)
-
-        # ^^ don't need above 2 lines; they create TWO objects, which slows psycopg2
-        # .. instead use more succint version below
-
         current_user.votes_left = decrement(current_user.votes_left)
         db.session.commit()
 
-        # the commit is also an object -- headsup
-        # so 5 objects on this page: db Object, commit object, logged_user, person1, person2
-
-        # # persons = Person.query.filter(Person.id != logged_user.person_id).all()
+        # need to query with every refresh to pass updated scores into x.score,y.score
+        persons = Person.query.filter(Person.id != current_user.person_id).all()
         person1 = random.choice(persons)
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y

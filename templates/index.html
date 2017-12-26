@@ -3,7 +3,7 @@
 {% block content %}
 
 {% if not current_user.is_anonymous %}
-<a href="{{url_for('logout')}}">logout</a><br />
+Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout')}}">logout</a><br />
 <br />
 {% endif %}
 
