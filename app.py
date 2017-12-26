@@ -1,5 +1,5 @@
 from flask import Flask, render_template,request,make_response,redirect,url_for,flash
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy,get_debug_queries
 import sqlalchemy
 from sqlalchemy import desc
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user,login_required
@@ -29,6 +29,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d33358058ac87b39216661f88fc8ff512f15a213dee7d11f0e67d3633c@ec2-184-73-202-112.compute-1.amazonaws.com:5432/d1gosfmdivcf2k'
 app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SQLALCHEMY_RECORD_QUERIES'] = True
+
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -114,8 +116,9 @@ def logout():
 
 @app.route('/',methods=['GET'])
 def index(x=None,y=None):
-    logged_user = current_user
-    # current_rankings = get_current_rankings()
+    # don't set "logged_user" = current_user !
+    # this is just creating a superfluous object!
+    # current_user is ALREADY a User object
 
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
@@ -126,7 +129,7 @@ def index(x=None,y=None):
         else:
             return person1,person2
 
-    if not logged_user.is_anonymous:
+    if not current_user.is_anonymous:
 
         # current_votes = logged_user.votes_left
         # logged_user.votes_left = decrement(current_votes)
@@ -134,7 +137,7 @@ def index(x=None,y=None):
         # ^^ don't need above 2 lines; they create TWO objects, which slows psycopg2
         # .. instead use more succint version below
 
-        logged_user.votes_left = decrement(logged_user.votes_left)
+        current_user.votes_left = decrement(current_user.votes_left)
         db.session.commit()
 
         # the commit is also an object -- headsup
@@ -145,14 +148,12 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,logged_user=logged_user)
+    return render_template('index.html',x=x,y=y)
     # index refresh queries database to reflect new scores
 
 
 @app.route('/ello',methods=['POST'])
-@login_required
 def ello():
-    logged_user = current_user
     winner_id = int(request.form['winner_id'])
     winner_score = int(request.form['winner_score'])
     loser_id = int(request.form['loser_id'])
@@ -188,9 +189,9 @@ def ello():
     # might be able to eliminate this lookup -- ?
     winner_object = Person.query.filter_by(id=winner_id).first()
     loser_object = Person.query.filter_by(id=loser_id).first()
+    score_change = score_change(winner_score,loser_score)
 
     if not loser_id == 6:
-        score_change = score_change(winner_score,loser_score)
 
         updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
 
@@ -210,12 +211,12 @@ def ello():
 
 
     # create new transaction // must be AFTER score_change is calculated
-    new_transaction = Transaction(voter_id=logged_user.id,
+    new_transaction = Transaction(voter_id=current_user.id,
                                   winner_id=winner_id,
                                   loser_id=loser_id,
                                   winner_score=winner_score,
                                   loser_score=loser_score,
-                                  score_change=winner_object.last_change)
+                                  score_change=score_change)
     db.session.add(new_transaction)
 
     # commit all to database
@@ -232,16 +233,20 @@ def rankings():
 @app.route('/transactions')
 @login_required
 def transactions():
-    logged_user = current_user
-    if logged_user.id == 1:
-        transactions = Transaction.query.all()
-        return render_template('transactions.html',transactions=transactions)
+    if current_user.id == 1:
+        return render_template('transactions.html',transactions=Transaction.query.all())
     else:
         return redirect(url_for('index'))
 
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.after_request
+def after_request(response):
+    for query in get_debug_queries():
+        app.logger.warning("%s\n***\nparameters: %s\nduration: %fs\ncontext: %s\n" % (query.statement, query.parameters, query.duration, query.context))
+    return response
 
 
 if __name__ == '__main__':

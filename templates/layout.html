@@ -1,5 +1,35 @@
-<h3>SocietyRank</h3>
+<header>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;}
+h3 {
+    margin: 0;
+    padding: 25 0 5 0;
+    border: 0;
+    outline: 0;}
+#container {
+  margin: 0 0 0 0;
+  padding: 4 15 0 15;
+  border: 0;
+  outline: 0;
+}
+#head {
+        background: #f8f8f8;
+        padding: 10 0 0 15;
+        width: 100%;
+        border-bottom: 1px solid #eee;
+    }
+</style>
+</header>
 
+<div id="head">
+<h3>SocietyRank</h3>
+</div>
+
+<div id="container">
 <a href="{{url_for('transactions')}}">transactions</a> |
 <a href="{{url_for('about')}}">about</a> |
 <a href="{{url_for('rankings')}}">rankings</a> | <a href="{{url_for('index')}}">index</a>
@@ -8,3 +38,4 @@
 
 {% block content %}
 {% endblock %}
+</div>

@@ -3,10 +3,6 @@
 {% block content %}
 
 {% if not current_user.is_anonymous %}
-Welcome, <b>{{logged_user.username}}</b>.<br />
-<span style="color:blue;background-color:lavenderblush;">
-Your current <i>Elo score</i> is {{logged_user.person.score}}
-</span>&nbsp;&nbsp;&nbsp;
 <a href="{{url_for('logout')}}">logout</a><br />
 <br />
 {% endif %}
@@ -25,13 +21,13 @@ p@ssw3rd <input type="text" name="pw"><br />
 <span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
 {% else %}
 <div style="background-color:palegreen; padding:15 0 15 15;">
-    {% if logged_user.votes_left > 0 %}
+    {% if current_user.votes_left > 0 %}
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
           <input type="submit" name="nickname" value="{{x.nickname}},{{x.species}}"  />
           <input type="hidden" name="winner_id" value="{{x.id}}"  />
           <input type="hidden" name="winner_score" value="{{x.score}}"  />
-          <input type="hidden" name="loser_id" value="{{x.id}}"  />
-          <input type="hidden" name="loser_score" value="{{x.score}}"  />
+          <input type="hidden" name="loser_id" value="{{y.id}}"  />
+          <input type="hidden" name="loser_score" value="{{y.score}}"  />
         </form>&nbsp;<i>v.</i>&nbsp;
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
           <input type="submit" name="nickname" value="{{y.nickname}},{{y.species}}"  />
@@ -41,7 +37,7 @@ p@ssw3rd <input type="text" name="pw"><br />
           <input type="hidden" name="loser_score" value="{{x.score}}"  />
         </form>
         <br /><br />
-        <span style="font-family:monospace;">You have {{logged_user.votes_left}} votes left.</span><br />
+        <span style="font-family:monospace;">You have {{current_user.votes_left}} votes left.</span><br />
     {% else %}
         No more votes for you! Thanks for playing.
     {% endif %}

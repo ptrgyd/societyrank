@@ -3,9 +3,11 @@
 {% block content %}
 
 {% if not current_user.is_anonymous %}
+<span style="font-family:monospace;">
 hey.<br />
 hey {{current_user.person.species}} ... what's wrong?<br />
 you worried broh?<br /><br />
+</span>
 {% endif %}
 
 <table style="border:0px solid black;border-collapse:collapse;">
