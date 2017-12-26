@@ -85,9 +85,6 @@ def decrement(votes):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# need to set it to something while debugging, o/w throws error
-persons = Person.query.all()
-
 @app.route('/logmein',methods=['POST'])
 def logmein():
     username = request.form['username']
@@ -101,9 +98,6 @@ def logmein():
 
     if user and user_pw == pw:
         login_user(user)
-        logged_user = current_user
-        global persons
-        persons = Person.query.filter(Person.id != logged_user.person_id).all()
         return redirect(url_for('index'))
     else:
         return redirect(url_for('index'))
@@ -116,6 +110,9 @@ def logout():
 
 @app.route('/',methods=['GET'])
 def index(x=None,y=None):
+    # need to query with every refresh to pass updated scores into x.score,y.score
+    persons = persons = Person.query.filter(Person.id != current_user.person_id).all()
+
     # don't set "logged_user" = current_user !
     # this is just creating a superfluous object!
     # current_user is ALREADY a User object
