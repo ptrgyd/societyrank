@@ -1,2 +1,3 @@
 pipenv
 .DS_Store
+.pyc
