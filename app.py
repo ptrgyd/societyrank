@@ -2,6 +2,7 @@ from flask import Flask, render_template,request,make_response,redirect,url_for,
 from flask_sqlalchemy import SQLAlchemy,get_debug_queries
 import sqlalchemy
 from sqlalchemy import desc
+from sqlalchemy.orm import defer
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user,login_required
 import random
 import math
@@ -86,6 +87,7 @@ def decrement(votes):
 
 @login_manager.user_loader   # returns User object with given user_id
 def load_user(user_id):
+    # return User.query.with_entities(User.id).filter_by(id=user_id).first()
     return User.query.get(int(user_id))
 
 @app.route('/logmein',methods=['POST'])
@@ -112,7 +114,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/',methods=['GET'])
-def index(x=None,y=None):
+def index(x=None,y=None,person1=None,person2=None):
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
         if person1.id == person2.id:
@@ -123,16 +125,19 @@ def index(x=None,y=None):
             return person1,person2
 
     if not current_user.is_anonymous:
+        current_user_person_id = current_user.person_id
         current_user.votes_left = decrement(current_user.votes_left)
         db.session.commit()
 
         # need to query with every refresh to pass updated scores into x.score,y.score
-        persons = Person.query.filter(Person.id != current_user.person_id).all()
+        # query = Person.query.options(defer('genus','last_change'))
+        # persons = query.filter(Person.id != current_user_person_id).all()
+        persons = Person.query.filter(Person.id != current_user_person_id).all()
         person1 = random.choice(persons)
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y)
+    return render_template('index.html',x=x,y=y,person1=person1,person2=person2)
     # index refresh queries database to reflect new scores
 
 
