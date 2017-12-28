@@ -9,10 +9,6 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
 
 
 
-{{person1}} is {{person1.nickname}}<br />
-{{person2}} is {{person2.nickname}}<br />
-
-
 {% if current_user.is_anonymous %}
 <form action="/logmein" method="POST" style="background-color:lightblue; padding:5 0 10 5;">
 username <input type="text" name="username"><br />

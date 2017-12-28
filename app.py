@@ -34,8 +34,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d333580
 app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_RECORD_QUERIES'] = True
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -114,7 +115,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/',methods=['GET'])
-def index(x=None,y=None,person1=None,person2=None):
+def index(x=None,y=None):
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
         if person1.id == person2.id:
@@ -130,14 +131,12 @@ def index(x=None,y=None,person1=None,person2=None):
         db.session.commit()
 
         # need to query with every refresh to pass updated scores into x.score,y.score
-        # query = Person.query.options(defer('genus','last_change'))
-        # persons = query.filter(Person.id != current_user_person_id).all()
         persons = Person.query.filter(Person.id != current_user_person_id).all()
         person1 = random.choice(persons)
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,person1=person1,person2=person2)
+    return render_template('index.html',x=x,y=y)
     # index refresh queries database to reflect new scores
 
 
@@ -178,6 +177,7 @@ def ello():
     # might be able to eliminate this lookup -- ?
     winner_object = Person.query.filter_by(id=winner_id).first()
     loser_object = Person.query.filter_by(id=loser_id).first()
+
     score_change = score_change(winner_score,loser_score)
 
     if not loser_id == 6:
