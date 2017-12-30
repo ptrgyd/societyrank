@@ -1,3 +1,5 @@
 pipenv
 .DS_Store
-.pyc
+app.pyc
+*.pyc
+virtual/

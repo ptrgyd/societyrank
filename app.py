@@ -149,7 +149,7 @@ def ello():
     winner_score = int(request.form['winner_score'])
     loser_id = int(request.form['loser_id'])
     loser_score = int(request.form['loser_score'])
-    k = 100
+    k = 32
 
     def expected(higher_score,lower_score):
         expected = 1 / (1 + 10**(float(lower_score - higher_score)/400))
