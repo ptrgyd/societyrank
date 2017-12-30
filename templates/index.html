@@ -16,6 +16,7 @@ p@ssw3rd <input type="text" name="pw"><br />
 <input type="submit" value="log me in bruh">
 </form>
 <span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
+
 {% else %}
 <div style="background-color:palegreen; padding:15 0 15 15;">
     {% if current_user.votes_left > 0 %}
@@ -40,6 +41,7 @@ p@ssw3rd <input type="text" name="pw"><br />
     {% endif %}
 </div>
 {% endif %}
+
 
 <table style="border:0px solid black;border-collapse:collapse;">
 {% for e in current_rankings %}

@@ -126,6 +126,8 @@ def index(x=None,y=None):
         else:
             return person1,person2
 
+    current_rankings = get_current_rankings()
+
     if not current_user.is_anonymous:
         current_user_person_id = current_user.person_id
         current_user.votes_left = decrement(current_user.votes_left)
