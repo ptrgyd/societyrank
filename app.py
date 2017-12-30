@@ -11,7 +11,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 
 # THIS BLOCK REQUIRED FOR HEROKU
-#
+# putting a comment
 import urllib.parse # required for heroku
 import psycopg2
 
