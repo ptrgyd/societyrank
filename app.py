@@ -137,7 +137,7 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y)
+    return render_template('index.html',x=x,y=y,current_rankings=current_rankings)
     # index refresh queries database to reflect new scores
 
 
