@@ -12,18 +12,18 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 # THIS BLOCK REQUIRED FOR HEROKU
 # putting a comment
-import urllib.parse # required for heroku
-import psycopg2
-
-urllib.parse.uses_netloc.append("postgres")
-url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-conn = psycopg2.connect(
- database=url.path[1:],
- user=url.username,
- password=url.password,
- host=url.hostname,
- port=url.port
-)
+# import urllib.parse # required for heroku
+# import psycopg2
+#
+# urllib.parse.uses_netloc.append("postgres")
+# url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+# conn = psycopg2.connect(
+#  database=url.path[1:],
+#  user=url.username,
+#  password=url.password,
+#  host=url.hostname,
+#  port=url.port
+# )
 
 app = Flask(__name__)
 
@@ -234,13 +234,6 @@ def transactions():
 def about():
     return render_template('about.html')
 
-@app.after_request
-def after_request(response):
-    for query in get_debug_queries():
-        app.logger.warning("%s\n***\nparameters: %s\nduration: %fs\ncontext: %s\n" % (query.statement, query.parameters, query.duration, query.context))
-    return response
-
-
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8800, debug=True)
     # host='0.0.0.0', port=8800, debug=True
