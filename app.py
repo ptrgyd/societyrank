@@ -73,6 +73,8 @@ class Transaction(db.Model):
     loser = db.relationship('Person',foreign_keys=[loser_id])
     user = db.relationship('User',foreign_keys=[voter_id])
 
+class Profile(db.Model):
+
 # GLOBAL VARIABLES and FUNCTIONS
 
 # can't put a query in here (like current_rankings) because then it only
