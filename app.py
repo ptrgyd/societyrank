@@ -49,6 +49,10 @@ class Person(db.Model):
     nickname = db.Column(db.String(50))
     score = db.Column(db.Integer,default=800)
     last_change = db.Column(db.Integer,default=0)
+    profile_id = db.Column(db.Integer,db.ForeignKey('profilee.id'),nullable=True)
+
+    # this is the attribute you call to get to Profile >> ryan.profile.descrip
+    profilee = db.relationship('Profilee',foreign_keys=[profile_id])
 
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -56,9 +60,10 @@ class User(UserMixin,db.Model):
     pw = db.Column(db.String)
     email = db.Column(db.String(50))
     votes_left = db.Column(db.Integer)
-
     person_id = db.Column(db.Integer,db.ForeignKey('person.id'),nullable=False)
-    person = db.relationship('Person',backref=db.backref('users', lazy=True))
+    comments_left = db.Column(db.Integer)
+
+    person = db.relationship('Person',backref=db.backref('user', lazy=True))
 
 class Transaction(db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -73,7 +78,25 @@ class Transaction(db.Model):
     loser = db.relationship('Person',foreign_keys=[loser_id])
     user = db.relationship('User',foreign_keys=[voter_id])
 
-class Profile(db.Model):
+class Profilee(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    descrip = db.Column(db.String(1050))
+    comments_id = db.Column(db.Integer,db.ForeignKey('comments.profile_id'))
+    person_id = db.Column(db.Integer,db.ForeignKey('person.profile_id'))
+
+    comments = db.relationship('Comments',foreign_keys=[comments_id])
+    person = db.relationship('Person',foreign_keys=[person_id])
+
+class Comments(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    profile_id = db.Column(db.Integer,db.ForeignKey('profilee.id'))
+    commenter_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    comment = db.Column(db.String(280))
+
+    about = db.relationship('Profilee',foreign_keys=[profile_id])
+    made_by = db.relationship('User',foreign_keys=[commenter_id])
+
+
 
 # GLOBAL VARIABLES and FUNCTIONS
 
@@ -85,9 +108,9 @@ def get_current_rankings():
     # current_rankings = session.query(Person).order_by(desc(Person.score)).all()
     return current_rankings
 
-def decrement(votes):
-    updated_votes = votes - 1
-    return updated_votes
+def decrement(value):
+    updated_value = value - 1
+    return updated_value
 
 @login_manager.user_loader   # returns User object with given user_id
 def load_user(user_id):
@@ -107,7 +130,7 @@ def logmein():
 
     if user and user_pw == pw:
         login_user(user)
-        return redirect(url_for('index'))
+        return redirect(    url_for('index'))
     else:
         return redirect(url_for('index'))
 
@@ -116,6 +139,42 @@ def logmein():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/profile/<profile_id>',methods=['GET'])
+def profile(profile_id):
+    person = Person.query.filter_by(id=profile_id).first()
+    comments = Comments.query.filter_by(profile_id=profile_id).order_by(desc(Comments.id)).all()
+
+    return render_template('profile.html',comments=comments,person=person,profile_id=profile_id,current_user=current_user)
+
+pete_comments = ['You are a god -- A GOLDEN GOD!',
+                 'You are a god -- A GOLDEN GOD!',
+                 'You are a god -- A GOLDEN GOD!',
+                 'You are a god -- A GOLDEN GOD!',
+                 'Your genius knows no bounds.',
+                 'WE ARE NOT WORTHY!',
+                 'I supplicate myself before you, forever and always.',
+                 'For God, For Country, For Pete.']
+
+@app.route('/submit',methods=['POST'])
+def submit():
+    current_user.comments_left = decrement(current_user.comments_left)
+
+    profile_id = int(request.form['profile_id'])
+    if profile_id == 6:
+        comment = random.choice(pete_comments)
+    else:
+        comment = request.form['comment']
+
+    new_comment = Comments(profile_id=profile_id,
+                           commenter_id=current_user.id,
+                           comment=comment)
+
+    db.session.add(new_comment)
+    db.session.commit()
+
+    return redirect(url_for('profile',profile_id=profile_id))
 
 @app.route('/',methods=['GET'])
 def index(x=None,y=None):

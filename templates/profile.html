@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<span style="color:steelblue">Profile belongs to {{person.nickname}}:{{person.species}}.</span><br /><br />
+
+{% if current_user.is_anonymous == False and current_user.person_id != profile_id|int %}
+{% if current_user.comments_left > 0 %}
+Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
+<form action="{{url_for('submit')}}" method="POST">
+  <textarea rows="5" cols="60" name="comment" maxlength="200"></textarea>
+  <input type="hidden" name="profile_id" value="{{profile_id}}" />
+  <br />
+  <input type="submit" />
+</form>
+{% else %}
+<span style="background-color:yellow;">No more comments for you!!</span>
+<br />
+{% endif %}
+<br>
+{% endif %}
+
+
+Comments are below:<br /><br />
+
+{% for comment in comments %}
+made_by <span style="color:red">{{comment.made_by.username}}</span>:<br />
+{{comment.comment}}<br /><br />
+{% endfor %}
+
+{% endblock %}
