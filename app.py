@@ -8,6 +8,7 @@ import random
 import math
 import os
 from flask_debugtoolbar import DebugToolbarExtension
+from config import Config
 
 
 # THIS BLOCK REQUIRED FOR HEROKU
@@ -26,16 +27,16 @@ from flask_debugtoolbar import DebugToolbarExtension
 # )
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d33358058ac87b39216661f88fc8ff512f15a213dee7d11f0e67d3633c@ec2-184-73-202-112.compute-1.amazonaws.com:5432/d1gosfmdivcf2k'
 
 # app.debug = True
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # app.config['SQLALCHEMY_RECORD_QUERIES'] = True
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d33358058ac87b39216661f88fc8ff512f15a213dee7d11f0e67d3633c@ec2-184-73-202-112.compute-1.amazonaws.com:5432/d1gosfmdivcf2k'
-app.config['SECRET_KEY'] = 'secret'
-
 
 # toolbar = DebugToolbarExtension(app)
 db = SQLAlchemy(app)
