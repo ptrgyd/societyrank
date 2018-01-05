@@ -17,6 +17,22 @@ p@ssw3rd <input type="text" name="pw"><br />
 </form>
 <span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
 
+<br /><br />
+here comes wtf-forms:
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}
+        </p>
+        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+
 {% else %}
 <div style="background-color:palegreen; padding:15 0 15 15;">
     {% if current_user.votes_left > 0 %}

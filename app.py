@@ -9,7 +9,7 @@ import math
 import os
 from flask_debugtoolbar import DebugToolbarExtension
 from config import Config
-
+from forms import LoginForm,CommentBox
 
 # THIS BLOCK REQUIRED FOR HEROKU
 # putting a comment
@@ -147,7 +147,9 @@ def profile(profile_id):
     person = Person.query.filter_by(id=profile_id).first()
     comments = Comments.query.filter_by(profile_id=profile_id).order_by(desc(Comments.id)).all()
 
-    return render_template('profile.html',comments=comments,person=person,profile_id=profile_id,current_user=current_user)
+    commentbox = CommentBox()
+
+    return render_template('profile.html',comments=comments,person=person,profile_id=profile_id,current_user=current_user,commentbox=commentbox)
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'You are a god -- A GOLDEN GOD!',
@@ -179,6 +181,7 @@ def submit():
 
 @app.route('/',methods=['GET'])
 def index(x=None,y=None):
+    form = LoginForm()
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
         if person1.id == person2.id:
@@ -201,7 +204,7 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,current_rankings=current_rankings)
+    return render_template('index.html',x=x,y=y,current_rankings=current_rankings,form=form)
     # index refresh queries database to reflect new scores
 
 

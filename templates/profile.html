@@ -6,6 +6,16 @@
 
 {% if current_user.is_anonymous == False and current_user.person_id != profile_id|int %}
 {% if current_user.comments_left > 0 %}
+here comes wtf-forms:
+    <form action="" method="post">
+        {{ commentbox.hidden_tag() }}
+        {{ commentbox.comment(cols="60",rows="5") }}
+        <input type="hidden" value="just a spacer" /><br />
+        {{ commentbox.submit }}
+    </form>
+
+
+
 Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
 <form action="{{url_for('submit')}}" method="POST">
   <textarea rows="5" cols="60" name="comment" maxlength="200"></textarea>
@@ -19,6 +29,7 @@ Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left
 {% endif %}
 <br>
 {% endif %}
+
 
 
 Comments are below:<br /><br />
