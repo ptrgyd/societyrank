@@ -10,27 +10,28 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
 
 
 {% if current_user.is_anonymous %}
-<form action="/logmein" method="POST" style="background-color:lightblue; padding:5 0 10 5;">
-username <input type="text" name="username"><br />
-p@ssw3rd <input type="text" name="pw"><br />
-<input type="submit" value="log me in bruh">
-</form>
-<span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
+    <span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
+    <form action="/" method="post" style="background-color:;padding:5 0 10 5;border:1px solid gainsboro;">
+        {{ wtfform.hidden_tag() }}
+            username {{ wtfform.username() }}
+            {% for x in wtfform.username.errors %}
+            &nbsp;<span style="color:red;background-color:floralwhite;">&nbsp;<<&nbsp;{{ x }}</span>
+            {% endfor %}<br />
 
-<br /><br />
-here comes wtf-forms:
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-        <p>{{ form.submit() }}</p>
+            p@ssw3rd {{ wtfform.password() }}
+            {% for x in wtfform.password.errors %}
+            &nbsp;<span style="color:red;background-color:floralwhite;">&nbsp;<<&nbsp;{{ x }}</span>
+            {% endfor %}<br />
+
+            {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <span style="color:red;background-color:floralwhite;">{{ message }}</span><br />
+                        {% endfor %}
+                    {% endif %}
+            {% endwith %}
+
+            {{ wtfform.submit() }}
     </form>
 
 {% else %}
@@ -58,7 +59,7 @@ here comes wtf-forms:
 </div>
 {% endif %}
 
-<br /><br />
+<br />
 <table style="border:0px solid black;border-collapse:collapse;">
 {% for e in current_rankings %}
 

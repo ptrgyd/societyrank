@@ -142,12 +142,30 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/profile/<profile_id>',methods=['GET'])
+@app.route('/profile/<profile_id>',methods=['GET','POST'])
 def profile(profile_id):
+    profile_id = int(profile_id)
     person = Person.query.filter_by(id=profile_id).first()
     comments = Comments.query.filter_by(profile_id=profile_id).order_by(desc(Comments.id)).all()
 
     commentbox = CommentBox()
+
+    if commentbox.validate_on_submit():
+        current_user.comments_left = decrement(current_user.comments_left)
+
+        if profile_id == 6:
+            comment = random.choice(pete_comments)
+        else:
+            comment = commentbox.comment.data
+
+        new_comment = Comments(profile_id=profile_id,
+                               commenter_id=current_user.id,
+                               comment=comment)
+
+        db.session.add(new_comment)
+        db.session.commit()
+
+        return redirect(url_for('profile',profile_id=profile_id))
 
     return render_template('profile.html',comments=comments,person=person,profile_id=profile_id,current_user=current_user,commentbox=commentbox)
 
@@ -160,28 +178,19 @@ pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'I supplicate myself before you, forever and always.',
                  'For God, For Country, For Pete.']
 
-@app.route('/submit',methods=['POST'])
-def submit():
-    current_user.comments_left = decrement(current_user.comments_left)
-
-    profile_id = int(request.form['profile_id'])
-    if profile_id == 6:
-        comment = random.choice(pete_comments)
-    else:
-        comment = request.form['comment']
-
-    new_comment = Comments(profile_id=profile_id,
-                           commenter_id=current_user.id,
-                           comment=comment)
-
-    db.session.add(new_comment)
-    db.session.commit()
-
-    return redirect(url_for('profile',profile_id=profile_id))
-
-@app.route('/',methods=['GET'])
+@app.route('/',methods=['GET','POST'])
 def index(x=None,y=None):
-    form = LoginForm()
+    wtfform = LoginForm()
+    if wtfform.validate_on_submit():
+        username = wtfform.username.data
+        pw = wtfform.password.data
+        user = User.query.filter_by(username=username).first()
+        if user is None or pw != user.pw:
+            flash('Hmmm, either your username is wrong or your password is off.')
+            return redirect('/')
+        login_user(user)
+        return redirect('/')
+
     # makes sure person1,2 are not same; if so, generates a new pair and checks again
     def pair_generator(person1,person2):
         if person1.id == person2.id:
@@ -204,7 +213,7 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,current_rankings=current_rankings,form=form)
+    return render_template('index.html',x=x,y=y,current_rankings=current_rankings,wtfform=wtfform)
     # index refresh queries database to reflect new scores
 
 

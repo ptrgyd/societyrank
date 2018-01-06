@@ -5,29 +5,23 @@
 <span style="color:steelblue">Profile belongs to {{person.nickname}}:{{person.species}}.</span><br /><br />
 
 {% if current_user.is_anonymous == False and current_user.person_id != profile_id|int %}
-{% if current_user.comments_left > 0 %}
-here comes wtf-forms:
-    <form action="" method="post">
-        {{ commentbox.hidden_tag() }}
-        {{ commentbox.comment(cols="60",rows="5") }}
-        <input type="hidden" value="just a spacer" /><br />
-        {{ commentbox.submit }}
-    </form>
-
-
-
-Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
-<form action="{{url_for('submit')}}" method="POST">
-  <textarea rows="5" cols="60" name="comment" maxlength="200"></textarea>
-  <input type="hidden" name="profile_id" value="{{profile_id}}" />
+  {% if current_user.comments_left > 0 %}
+  WTF--Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
+      <form action="" method="post">
+          {{ commentbox.hidden_tag() }}
+          {{ commentbox.comment(cols="60",rows="5") }}
+          {% for x in commentbox.comment.errors %}
+          <br /><span style="color:red;background-color:floralwhite;">{{ x }}</span>
+          {% endfor %}
+          <input type="hidden" name="profile_id" value="{{profile_id}}" />
+          <input type="hidden" value="just a spacer" /><br />
+          {{ commentbox.submit }}
+      </form>
+  {% else %}
+  <span style="background-color:yellow;">No more comments for you!!</span>
   <br />
-  <input type="submit" />
-</form>
-{% else %}
-<span style="background-color:yellow;">No more comments for you!!</span>
+  {% endif %}
 <br />
-{% endif %}
-<br>
 {% endif %}
 
 
