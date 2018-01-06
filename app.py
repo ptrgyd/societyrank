@@ -178,8 +178,12 @@ pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'I supplicate myself before you, forever and always.',
                  'For God, For Country, For Pete.']
 
+colors_list = ['red','limegreen','mediumorchid','blue','dodgerblue','deeppink','darkgreen']
+
 @app.route('/',methods=['GET','POST'])
 def index(x=None,y=None):
+    random_color = random.choice(colors_list)
+
     wtfform = LoginForm()
     if wtfform.validate_on_submit():
         username = wtfform.username.data
@@ -213,7 +217,7 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',x=x,y=y,current_rankings=current_rankings,wtfform=wtfform)
+    return render_template('index.html',random_color=random_color,x=x,y=y,current_rankings=current_rankings,wtfform=wtfform)
     # index refresh queries database to reflect new scores
 
 

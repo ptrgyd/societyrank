@@ -2,14 +2,14 @@
 
 {% block content %}
 
-<span style="color:steelblue">Profile belongs to {{person.nickname}}:{{person.species}}.</span><br /><br />
+<span style="color:;"><h3>Welcome to {{person.nickname}}&rsquo;s page</h3></span>
 
 {% if current_user.is_anonymous == False and current_user.person_id != profile_id|int %}
   {% if current_user.comments_left > 0 %}
-  WTF--Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
+  Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
       <form action="" method="post">
           {{ commentbox.hidden_tag() }}
-          {{ commentbox.comment(cols="60",rows="5") }}
+          {{ commentbox.comment(cols="60",rows="5",maxlength="280") }}
           {% for x in commentbox.comment.errors %}
           <br /><span style="color:red;background-color:floralwhite;">{{ x }}</span>
           {% endfor %}
@@ -25,12 +25,13 @@
 {% endif %}
 
 
-
-Comments are below:<br /><br />
-
-{% for comment in comments %}
-made_by <span style="color:red">{{comment.made_by.username}}</span>:<br />
-{{comment.comment}}<br /><br />
-{% endfor %}
+{% if comments == [] %}
+  <span style="background-color:yellow;">Aww, no comments yet. Leave one!</span>
+{% else %}
+  {% for comment in comments %}
+  submitted <span style="color:red;">2017 jan 3, 00:09:43:42</span>
+  <div style="background-color:;max-width:390px;padding:0 0 0 0;font-family:monospace;">{{comment.comment}}</div><br />
+  {% endfor %}
+{% endif %}
 
 {% endblock %}
