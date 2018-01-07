@@ -38,14 +38,14 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
 <div style="background-color:palegreen; padding:15 0 15 15;">
     {% if current_user.votes_left > 0 %}
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
-          <input type="submit" name="nickname" value="{{x.nickname}},{{x.species}}"  />
+          <input type="submit" name="nickname" value="{{x.nickname}}" style="font-size:24px;" />
           <input type="hidden" name="winner_id" value="{{x.id}}"  />
           <input type="hidden" name="winner_score" value="{{x.score}}"  />
           <input type="hidden" name="loser_id" value="{{y.id}}"  />
           <input type="hidden" name="loser_score" value="{{y.score}}"  />
         </form>&nbsp;<i>v.</i>&nbsp;
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
-          <input type="submit" name="nickname" value="{{y.nickname}},{{y.species}}"  />
+          <input type="submit" name="nickname" value="{{y.nickname}}" style="font-size:24px;" />
           <input type="hidden" name="winner_id" value="{{y.id}}"  />
           <input type="hidden" name="winner_score" value="{{y.score}}"  />
           <input type="hidden" name="loser_id" value="{{x.id}}"  />

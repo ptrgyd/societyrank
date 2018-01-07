@@ -178,7 +178,7 @@ pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'I supplicate myself before you, forever and always.',
                  'For God, For Country, For Pete.']
 
-colors_list = ['red','limegreen','mediumorchid','blue','dodgerblue','deeppink','darkgreen']
+colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink','darkgreen']
 
 @app.route('/',methods=['GET','POST'])
 def index(x=None,y=None):
