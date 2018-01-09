@@ -5,7 +5,7 @@ html, body {
     padding: 0;
     border: 0;
     outline: 0;}
-h3 {
+h1 {
     margin: 0;
     padding: 25 0 5 0;
     border: 0;
@@ -19,17 +19,25 @@ h3 {
 #head {
         background: #f8f8f8;
         padding: 10 0 0 15;
-        width: 100%;
+        width:;
         border-bottom: 1px solid #eee;
     }
 a, a:visited{color:steelblue;text-decoration:none;}
 a:hover{color:red;text-decoration: underline;}
+table,td{
+    border-collapse:collapse;
+    vertical-align: text-bottom;
+}
+
 </style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery-3.2.1.min.js') }}">\x3C/script>')</script>
 </header>
 
 <body>
 <div id="head">
-<h3><span style="color:{{random_color}}">Society</span>Rank</h3>
+<h1><span style="color:{{random_color}}">Society</span>Rank</h1>
 </div>
 
 <div id="container">
@@ -43,6 +51,4 @@ a:hover{color:red;text-decoration: underline;}
 {% endblock %}
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery-3.2.1.min.js') }}">\x3C/script>')</script>
 </body>

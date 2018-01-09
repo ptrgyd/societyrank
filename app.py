@@ -79,6 +79,13 @@ class Transaction(db.Model):
     loser = db.relationship('Person',foreign_keys=[loser_id])
     user = db.relationship('User',foreign_keys=[voter_id])
 
+class ScoreHistory(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    person_id = db.Column(db.Integer,db.ForeignKey('person.id'),nullable=False)
+    score = db.Column(db.Integer)
+
+    person = db.relationship('Person',foreign_keys=[person_id])
+
 class Profilee(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     descrip = db.Column(db.String(1050))
@@ -178,7 +185,7 @@ pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'I supplicate myself before you, forever and always.',
                  'For God, For Country, For Pete.']
 
-colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink','darkgreen']
+colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink']
 
 @app.route('/',methods=['GET','POST'])
 def index(x=None,y=None):
@@ -217,16 +224,26 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-    return render_template('index.html',random_color=random_color,x=x,y=y,current_rankings=current_rankings,wtfform=wtfform)
+        global current_person1
+        current_person1 = x.id
+        global current_person2
+        current_person2 = y.id
+
+    return render_template('index.html',
+                           random_color=random_color,
+                           x=x,y=y,
+                           current_rankings=current_rankings,
+                           wtfform=wtfform)
     # index refresh queries database to reflect new scores
 
+current_person1 = None
+current_person2 = None
 
 @app.route('/ello',methods=['POST'])
 def ello():
     winner_id = int(request.form['winner_id'])
-    winner_score = int(request.form['winner_score'])
     loser_id = int(request.form['loser_id'])
-    loser_score = int(request.form['loser_score'])
+
     k = 32
 
     def expected(higher_score,lower_score):
@@ -255,50 +272,68 @@ def ello():
         last_change = updated_score - entry_score
         return last_change
 
-    # might be able to eliminate this lookup -- ?
-    winner_object = Person.query.filter_by(id=winner_id).first()
-    loser_object = Person.query.filter_by(id=loser_id).first()
+    if (winner_id == current_person1 and loser_id == current_person2) or (winner_id == current_person2 and loser_id == current_person1):
 
-    score_change = score_change(winner_score,loser_score)
+        winner_object = Person.query.filter_by(id=winner_id).first()
+        loser_object = Person.query.filter_by(id=loser_id).first()
 
-    if not loser_id == 6:
+        winner_score = winner_object.score
+        loser_score = loser_object.score
 
-        updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
 
-        winner_object.score = updated_winner_score
-        loser_object.score = updated_loser_score
+        score_change = score_change(winner_score,loser_score)
 
-        winner_object.last_change = calc_change(winner_score,updated_winner_score)
-        loser_object.last_change = calc_change(loser_score,updated_loser_score)
+        if not loser_id == 6:
 
-    # if user selects pete as loser!
+            updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
+
+            winner_object.score = updated_winner_score
+            loser_object.score = updated_loser_score
+
+            winner_object.last_change = calc_change(winner_score,updated_winner_score)
+            loser_object.last_change = calc_change(loser_score,updated_loser_score)
+
+        # if user selects pete as loser!
+        else:
+            winner_object.score = winner_object.score - 9
+            loser_object.score = loser_object.score + 99
+
+            winner_object.last_change = -9
+            loser_object.last_change = 99
+
+
+        # create new transaction // must be AFTER score_change is calculated
+        new_transaction = Transaction(voter_id=current_user.id,
+                                      winner_id=winner_id,
+                                      loser_id=loser_id,
+                                      winner_score=winner_score,
+                                      loser_score=loser_score,
+                                      score_change=score_change)
+
+        # create new score_history transaction
+        new_score_history1 = ScoreHistory(person_id=winner_id,score=winner_score)
+        new_score_history2 = ScoreHistory(person_id=loser_id,score=loser_score)
+
+        db.session.add(new_transaction)
+        db.session.add(new_score_history1)
+        db.session.add(new_score_history2)
+
+        # commit all to database
+        db.session.commit()
+
+        return redirect(url_for('index'))
     else:
-        winner_object.score = winner_object.score - 9
-        loser_object.score = loser_object.score + 99
-
-        winner_object.last_change = -9
-        loser_object.last_change = 99
-
-
-    # create new transaction // must be AFTER score_change is calculated
-    new_transaction = Transaction(voter_id=current_user.id,
-                                  winner_id=winner_id,
-                                  loser_id=loser_id,
-                                  winner_score=winner_score,
-                                  loser_score=loser_score,
-                                  score_change=score_change)
-    db.session.add(new_transaction)
-
-    # commit all to database
-    db.session.commit()
-
-    return redirect(url_for('index'))
+        return redirect(url_for('imsorrydave'))
 
 
 @app.route('/rankings')
 def rankings():
     current_rankings = get_current_rankings()
     return render_template('rankings.html',current_rankings=current_rankings)
+
+@app.route('/imsorrydave')
+def imsorrydave():
+    return render_template('imsorrydave.html')
 
 @app.route('/transactions')
 @login_required
