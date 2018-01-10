@@ -50,10 +50,8 @@ class Person(db.Model):
     nickname = db.Column(db.String(50))
     score = db.Column(db.Integer,default=800)
     last_change = db.Column(db.Integer,default=0)
-    profile_id = db.Column(db.Integer,db.ForeignKey('profilee.id'),nullable=True)
-
-    # this is the attribute you call to get to Profile >> ryan.profile.descrip
-    profilee = db.relationship('Profilee',foreign_keys=[profile_id])
+    firstname = db.Column(db.String(50))
+    lastname = db.Column(db.String(50))
 
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -86,22 +84,13 @@ class ScoreHistory(db.Model):
 
     person = db.relationship('Person',foreign_keys=[person_id])
 
-class Profilee(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    descrip = db.Column(db.String(1050))
-    comments_id = db.Column(db.Integer,db.ForeignKey('comments.profile_id'))
-    person_id = db.Column(db.Integer,db.ForeignKey('person.profile_id'))
-
-    comments = db.relationship('Comments',foreign_keys=[comments_id])
-    person = db.relationship('Person',foreign_keys=[person_id])
-
 class Comments(db.Model):
     id = db.Column(db.Integer,primary_key=True)
-    profile_id = db.Column(db.Integer,db.ForeignKey('profilee.id'))
+    person_id = db.Column(db.Integer,db.ForeignKey('person.id'))
     commenter_id = db.Column(db.Integer,db.ForeignKey('user.id'))
     comment = db.Column(db.String(280))
 
-    about = db.relationship('Profilee',foreign_keys=[profile_id])
+    about = db.relationship('Person',foreign_keys=[person_id])
     made_by = db.relationship('User',foreign_keys=[commenter_id])
 
 
@@ -149,32 +138,32 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/profile/<profile_id>',methods=['GET','POST'])
-def profile(profile_id):
-    profile_id = int(profile_id)
-    person = Person.query.filter_by(id=profile_id).first()
-    comments = Comments.query.filter_by(profile_id=profile_id).order_by(desc(Comments.id)).all()
+@app.route('/profile/<person_id>',methods=['GET','POST'])
+def profile(person_id):
+    person_id = int(person_id)
+    person = Person.query.filter_by(id=person_id).first()
+    comments = Comments.query.filter_by(person_id=person_id).order_by(desc(Comments.id)).all()
 
     commentbox = CommentBox()
 
     if commentbox.validate_on_submit():
         current_user.comments_left = decrement(current_user.comments_left)
 
-        if profile_id == 6:
+        if person_id == 6:
             comment = random.choice(pete_comments)
         else:
             comment = commentbox.comment.data
 
-        new_comment = Comments(profile_id=profile_id,
+        new_comment = Comments(person_id=person_id,
                                commenter_id=current_user.id,
                                comment=comment)
 
         db.session.add(new_comment)
         db.session.commit()
 
-        return redirect(url_for('profile',profile_id=profile_id))
+        return redirect(url_for('profile',person_id=person_id))
 
-    return render_template('profile.html',comments=comments,person=person,profile_id=profile_id,current_user=current_user,commentbox=commentbox)
+    return render_template('profile.html',comments=comments,person=person,person_id=person_id,current_user=current_user,commentbox=commentbox)
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'You are a god -- A GOLDEN GOD!',

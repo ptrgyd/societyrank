@@ -2,10 +2,12 @@
 
 {% block content %}
 
-<span style="color:;"><h3>Welcome to {{person.nickname}}&rsquo;s page</h3></span>
-
-{% if current_user.is_anonymous == False and current_user.person_id != profile_id|int %}
+<span style="color:;"><h3>Welcome to the profile page of <span style="font-family:courier;font-weight:100;background-color:palegreen;">&nbsp;{{person.nickname}}&nbsp;</span></h3></span><br />
+<span style="font-family:monospace;">scientific name: </span><i>{{person.genus}} {{person.species}}</i><br />
+<span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;common name: </span>{{person.firstname}} {{person.lastname}}<br />
+{% if current_user.is_anonymous == False and current_user.person_id != person_id|int %}
   {% if current_user.comments_left > 0 %}
+  <br />
   Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
       <form action="" method="post">
           {{ commentbox.hidden_tag() }}
@@ -13,7 +15,7 @@
           {% for x in commentbox.comment.errors %}
           <br /><span style="color:red;background-color:floralwhite;">{{ x }}</span>
           {% endfor %}
-          <input type="hidden" name="profile_id" value="{{profile_id}}" />
+          <input type="hidden" name="person_id" value="{{person_id}}" />
           <input type="hidden" value="just a spacer" /><br />
           {{ commentbox.submit }}
       </form>

@@ -13,7 +13,7 @@ you worried broh?<br /><br />
 
 <ol style="margin:0 0 0 -9;">
 {% for x in current_rankings %}
-<li><span style="color:steelblue;">{{x.genus}} {{x.species}}</span>, <span style="font-family:monospace;">{{x.score}}</span></li>
+<li><a href="/profile/{{x.id}}">{{x.genus}} {{x.species}}</a>, <span style="font-family:monospace;">{{x.score}}</span></li>
 {% endfor %}
 </ol>
 
