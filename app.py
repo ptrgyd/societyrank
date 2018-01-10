@@ -222,13 +222,16 @@ def index(x=None,y=None):
                            random_color=random_color,
                            x=x,y=y,
                            current_rankings=current_rankings,
-                           wtfform=wtfform)
+                           wtfform=wtfform,
+                           current_person1=current_person1,
+                           current_person2=current_person2)
     # index refresh queries database to reflect new scores
 
 current_person1 = None
 current_person2 = None
 
 @app.route('/ello',methods=['POST'])
+@login_required
 def ello():
     winner_id = int(request.form['winner_id'])
     loser_id = int(request.form['loser_id'])
@@ -317,8 +320,9 @@ def ello():
 
 @app.route('/rankings')
 def rankings():
+    random_color = random.choice(colors_list)
     current_rankings = get_current_rankings()
-    return render_template('rankings.html',current_rankings=current_rankings)
+    return render_template('rankings.html',current_rankings=current_rankings,random_color=random_color)
 
 @app.route('/imsorrydave')
 def imsorrydave():
@@ -334,7 +338,8 @@ def transactions():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    random_color = random.choice(colors_list)
+    return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8800, debug=True)

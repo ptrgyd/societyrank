@@ -21,6 +21,9 @@ $(function(){
 });
 </script>
 
+{{current_person1}}<br />
+{{current_person2}}<br />
+
 {% if not current_user.is_anonymous %}
 Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout')}}">logout</a>
 <br /><br />
