@@ -8,6 +8,7 @@ flake8==3.5.0
 Flask==0.12
 Flask-DebugToolbar==0.10.1
 Flask-Login==0.4.1
+flask-moment==0.6.0
 Flask-SQLAlchemy==2.1
 Flask-WTF==0.14.2
 idna==2.6

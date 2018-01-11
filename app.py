@@ -1,4 +1,5 @@
-from flask import Flask, render_template,request,make_response,redirect,url_for,flash
+from flask import Flask,render_template,request,make_response,redirect,url_for,flash,session
+from flask.ext.moment import Moment
 from flask_sqlalchemy import SQLAlchemy,get_debug_queries
 import sqlalchemy
 from sqlalchemy import desc
@@ -28,6 +29,7 @@ from forms import LoginForm,CommentBox
 
 app = Flask(__name__)
 app.config.from_object(Config)
+moment = Moment(app)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
@@ -177,7 +179,7 @@ pete_comments = ['You are a god -- A GOLDEN GOD!',
 colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink']
 
 @app.route('/',methods=['GET','POST'])
-def index(x=None,y=None):
+def index(x=None,y=None,session1=None,session2=None):
     random_color = random.choice(colors_list)
 
     wtfform = LoginForm()
@@ -213,22 +215,18 @@ def index(x=None,y=None):
         person2 = random.choice(persons)
         x,y = pair_generator(person1,person2) # fxn returns tuple of Objects, which are passed into x,y
 
-        global current_person1
-        current_person1 = x.id
-        global current_person2
-        current_person2 = y.id
+        session['person1_id'] = x.id
+        session['person2_id'] = y.id
+
+        session1 = session['person1_id']
+        session2 = session['person2_id']
 
     return render_template('index.html',
                            random_color=random_color,
                            x=x,y=y,
                            current_rankings=current_rankings,
-                           wtfform=wtfform,
-                           current_person1=current_person1,
-                           current_person2=current_person2)
+                           wtfform=wtfform)
     # index refresh queries database to reflect new scores
-
-current_person1 = None
-current_person2 = None
 
 @app.route('/ello',methods=['POST'])
 @login_required
@@ -264,7 +262,7 @@ def ello():
         last_change = updated_score - entry_score
         return last_change
 
-    if (winner_id == current_person1 and loser_id == current_person2) or (winner_id == current_person2 and loser_id == current_person1):
+    if (winner_id == session['person1_id'] and loser_id == session['person2_id']) or (winner_id == session['person2_id'] and loser_id == session['person1_id']):
 
         winner_object = Person.query.filter_by(id=winner_id).first()
         loser_object = Person.query.filter_by(id=loser_id).first()
