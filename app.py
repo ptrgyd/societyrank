@@ -1,5 +1,6 @@
 from flask import Flask,render_template,request,make_response,redirect,url_for,flash,session
 from flask.ext.moment import Moment
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy,get_debug_queries
 import sqlalchemy
 from sqlalchemy import desc
@@ -91,6 +92,7 @@ class Comments(db.Model):
     person_id = db.Column(db.Integer,db.ForeignKey('person.id'))
     commenter_id = db.Column(db.Integer,db.ForeignKey('user.id'))
     comment = db.Column(db.String(280))
+    sub_time = db.Column(db.DateTime,index=True,default=datetime.utcnow)
 
     about = db.relationship('Person',foreign_keys=[person_id])
     made_by = db.relationship('User',foreign_keys=[commenter_id])
@@ -165,7 +167,12 @@ def profile(person_id):
 
         return redirect(url_for('profile',person_id=person_id))
 
-    return render_template('profile.html',comments=comments,person=person,person_id=person_id,current_user=current_user,commentbox=commentbox)
+    return render_template('profile.html',comments=comments,
+                                          person=person,
+                                          person_id=person_id,
+                                          current_user=current_user,
+                                          commentbox=commentbox,
+                                          current_time=datetime.utcnow())
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'You are a god -- A GOLDEN GOD!',
@@ -332,7 +339,7 @@ def transactions():
     if current_user.id == 1:
         return render_template('transactions.html',transactions=Transaction.query.all())
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for('imsorrydave'))
 
 @app.route('/about')
 def about():
