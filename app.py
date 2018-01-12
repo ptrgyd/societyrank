@@ -240,6 +240,28 @@ def index(x=None,y=None,session1=None,session2=None):
                            wtfform=wtfform)
     # index refresh queries database to reflect new scores
 
+@app.route('/sendmails/<user_id>')
+@login_required
+def sendmails(user_id):
+    if current_user.id == 1:
+        user_id = int(user_id)
+        user = User.query.filter_by(id=user_id).first()
+
+        msg = Message('Welcome to SOCIETYRANK',
+                      sender='pgayed@gmail.com',
+                      recipients=[user.email])
+        msg.body = render_template('mail/credentials'+'.txt',username=user.username,pw=user.pw)
+        # msg.html = render_template('mail/credentials'+'.html',username=user.username,pw=user.pw)
+        mail.send(msg)
+        return render_template('mail/credentials.txt',username=user.username,pw=user.pw)
+
+
+
+
+    else:
+        return redirect(url_for('imsorrydave'))
+
+
 @app.route('/ello',methods=['POST'])
 @login_required
 def ello():
