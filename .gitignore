@@ -3,3 +3,4 @@ pipenv
 app.pyc
 *.pyc
 virtual/
+venv/

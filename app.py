@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request,make_response,redirect,url_for,flash,session
-from flask.ext.moment import Moment
+from flask_moment import Moment
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy,get_debug_queries
 import sqlalchemy
@@ -12,6 +12,7 @@ import os
 from flask_debugtoolbar import DebugToolbarExtension
 from config import Config
 from forms import LoginForm,CommentBox
+from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
 # putting a comment
@@ -31,6 +32,7 @@ from forms import LoginForm,CommentBox
 app = Flask(__name__)
 app.config.from_object(Config)
 moment = Moment(app)
+mail = Mail(app)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
@@ -144,6 +146,8 @@ def logout():
 
 @app.route('/profile/<person_id>',methods=['GET','POST'])
 def profile(person_id):
+    random_color = random.choice(colors_list) # think i can put this variable in request
+
     person_id = int(person_id)
     person = Person.query.filter_by(id=person_id).first()
     comments = Comments.query.filter_by(person_id=person_id).order_by(desc(Comments.id)).all()
@@ -172,7 +176,8 @@ def profile(person_id):
                                           person_id=person_id,
                                           current_user=current_user,
                                           commentbox=commentbox,
-                                          current_time=datetime.utcnow())
+                                          current_time=datetime.utcnow(),
+                                          random_color=random_color,)
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'You are a god -- A GOLDEN GOD!',

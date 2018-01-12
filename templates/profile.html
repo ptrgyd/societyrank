@@ -2,15 +2,12 @@
 
 {% block content %}
 
-current time: {{ moment(current_time).format('LLL') }}<br />
-{{ moment(current_time).fromNow(refresh=True) }}<br /><br />
-
 <span style="color:;"><h3>Welcome to the profile page of <span style="font-family:courier;font-weight:100;background-color:palegreen;">&nbsp;{{person.nickname}}&nbsp;</span></h3></span><br />
 <span style="font-family:monospace;">scientific name: </span><i>{{person.genus}} {{person.species}}</i><br />
-<span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;common name: </span>{{person.firstname}} {{person.lastname}}<br />
+<span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;common name: </span>{{person.firstname}} {{person.lastname}}<br /><br />
+
 {% if current_user.is_anonymous == False and current_user.person_id != person_id|int %}
   {% if current_user.comments_left > 0 %}
-  <br />
   Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
       <form action="" method="post">
           {{ commentbox.hidden_tag() }}
@@ -22,24 +19,25 @@ current time: {{ moment(current_time).format('LLL') }}<br />
           <input type="hidden" value="just a spacer" /><br />
           {{ commentbox.submit }}
       </form>
-      {% if comments == [] %}
-        <span style="background-color:yellow;">Aww, no comments yet. Leave one!</span>
-      {% else %}
-        {% for comment in comments %}
-        submitted <span style="color:red;">{{comment.sub_time}}</span><br />
-        {{ moment(comment.sub_time).format('MMMM Do YYYY, h:mm:ss a') }}<br />
-        {{ moment(comment.sub_time).fromTime(current_time) }}<br />
-        {{ moment(comment.sub_time).calendar() }}<br />
-        <div style="background-color:;max-width:390px;padding:0 0 0 0;font-family:monospace;">{{comment.comment}}</div><br />
-        {% endfor %}
-      {% endif %}
-
   {% else %}
   <span style="background-color:yellow;">No more comments for you!!</span>
   <br />
   {% endif %}
 <br />
 {% endif %}
+
+{% if comments == [] %}
+  <span style="background-color:yellow;">Aww, no comments yet.</span>
+{% else %}
+  {% for comment in comments %}
+  submitted <span style="color:red;">{{comment.sub_time}}</span><br />
+  {{ moment(comment.sub_time).format('MMMM Do YYYY, h:mm:ss a') }}<br />
+  {{ moment(comment.sub_time).fromTime(current_time) }}<br />
+  {{ moment(comment.sub_time).calendar() }}<br />
+  <div style="background-color:;max-width:390px;padding:0 0 0 0;font-family:monospace;">{{comment.comment}}</div><br />
+  {% endfor %}
+{% endif %}
+
 
 
 
