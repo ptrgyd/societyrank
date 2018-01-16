@@ -152,6 +152,8 @@ def profile(person_id):
     person = Person.query.filter_by(id=person_id).first()
     comments = Comments.query.filter_by(person_id=person_id).order_by(desc(Comments.id)).all()
 
+    scorehistory = ScoreHistory.query.filter_by(person_id=person_id).order_by(desc(ScoreHistory.id)).all()
+
     commentbox = CommentBox()
 
     if commentbox.validate_on_submit():
@@ -177,7 +179,8 @@ def profile(person_id):
                                           current_user=current_user,
                                           commentbox=commentbox,
                                           current_time=datetime.utcnow(),
-                                          random_color=random_color,)
+                                          random_color=random_color,
+                                          scorehistory=scorehistory,)
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'You are a god -- A GOLDEN GOD!',
@@ -263,10 +266,6 @@ def sendmails(user_id):
         # msg.html = render_template('mail/credentials'+'.html',username=user.username,pw=user.pw)
         mail.send(msg)
         return render_template('mail/credentials.txt',username=user.username,pw=user.pw)
-
-
-
-
     else:
         return redirect(url_for('imsorrydave'))
 

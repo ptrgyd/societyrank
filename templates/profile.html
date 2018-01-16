@@ -6,6 +6,23 @@
 <span style="font-family:monospace;">scientific name: </span><i>{{person.genus}} {{person.species}}</i><br />
 <span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;common name: </span>{{person.firstname}} {{person.lastname}}<br /><br />
 
+
+<span style="font-family:monospace;background-color:gainsboro;font-size:9px;">
+{% for x in scorehistory %}
+  {% if loop.first %}
+  <span style="background-color:pink;">
+  {% endif %}
+    {% for i in range( (( x.score / 10 )|round)|int - 60 ) %}
+      &nbsp;
+    {% endfor %}
+    {{ x.score }}<br />
+  {% if loop.first %}
+  </span>
+  {% endif %}
+{% endfor %}
+<br />
+</span>
+
 {% if current_user.is_anonymous == False and current_user.person_id != person_id|int %}
   {% if current_user.comments_left > 0 %}
   Leave an anonymous comment&#128527; You have {{current_user.comments_left}} left.<br />
