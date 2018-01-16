@@ -15,7 +15,6 @@
           {% for x in commentbox.comment.errors %}
           <br /><span style="color:red;background-color:floralwhite;">{{ x }}</span>
           {% endfor %}
-          <input type="hidden" name="person_id" value="{{person_id}}" />
           <input type="hidden" value="just a spacer" /><br />
           {{ commentbox.submit }}
       </form>
@@ -30,10 +29,9 @@
   <span style="background-color:yellow;">Aww, no comments yet.</span>
 {% else %}
   {% for comment in comments %}
-  submitted <span style="color:red;">{{comment.sub_time}}</span><br />
-  {{ moment(comment.sub_time).format('MMMM Do YYYY, h:mm:ss a') }}<br />
-  {{ moment(comment.sub_time).fromTime(current_time) }}<br />
-  {{ moment(comment.sub_time).calendar() }}<br />
+  submitted <span style="color:red;font-style:italic;">{{ moment(comment.sub_time).fromTime(current_time) }}</span><br />
+  <!-- {{ moment(comment.sub_time).calendar() }}<br />
+  {{ moment(comment.sub_time).format('MMMM Do YYYY, h:mm:ss a') }}<br /> -->
   <div style="background-color:;max-width:390px;padding:0 0 0 0;font-family:monospace;">{{comment.comment}}</div><br />
   {% endfor %}
 {% endif %}

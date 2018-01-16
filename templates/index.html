@@ -61,6 +61,7 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
       <tr>
         <td>
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
+          {{ voteform1.csrf_token }}
           <input type="submit" name="person1" value="{{x.nickname}}" style="font-size:24px;cursor:pointer;" />
           <input type="hidden" name="winner_id" value="{{x.id}}"  />
           <input type="hidden" name="loser_id" value="{{y.id}}"  />
@@ -69,6 +70,7 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
         <td>&nbsp;<i>v.</i>&nbsp;</td>
         <td>
         <form action="{{url_for('ello')}}" method="post" style="display:inline;">
+          {{ voteform2.csrf_token }}
           <input type="submit" name="person2" value="{{y.nickname}}" style="font-size:24px;cursor:pointer;" />
           <input type="hidden" name="winner_id" value="{{y.id}}"  />
           <input type="hidden" name="loser_id" value="{{x.id}}"  />

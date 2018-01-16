@@ -11,7 +11,7 @@ import math
 import os
 from flask_debugtoolbar import DebugToolbarExtension
 from config import Config
-from forms import LoginForm,CommentBox
+from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
@@ -191,7 +191,7 @@ pete_comments = ['You are a god -- A GOLDEN GOD!',
 colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink']
 
 @app.route('/',methods=['GET','POST'])
-def index(x=None,y=None,session1=None,session2=None):
+def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=None):
     random_color = random.choice(colors_list)
 
     wtfform = LoginForm()
@@ -217,6 +217,7 @@ def index(x=None,y=None,session1=None,session2=None):
     current_rankings = get_current_rankings()
 
     if not current_user.is_anonymous:
+
         current_user_person_id = current_user.person_id
         current_user.votes_left = decrement(current_user.votes_left)
         db.session.commit()
@@ -233,11 +234,19 @@ def index(x=None,y=None,session1=None,session2=None):
         session1 = session['person1_id']
         session2 = session['person2_id']
 
+        # voteform1 = VoteForm(winner_id=x.id,loser_id=y.id,validators=must be x or y)
+        # voteform2 = VoteForm(winner_id=y.id,loser_id=x.id)
+
+        voteform1 = VoteForm()
+        voteform2 = VoteForm()
+
     return render_template('index.html',
                            random_color=random_color,
                            x=x,y=y,
                            current_rankings=current_rankings,
-                           wtfform=wtfform)
+                           wtfform=wtfform,
+                           voteform1=voteform1,
+                           voteform2=voteform2)
     # index refresh queries database to reflect new scores
 
 @app.route('/sendmails/<user_id>')
@@ -265,87 +274,91 @@ def sendmails(user_id):
 @app.route('/ello',methods=['POST'])
 @login_required
 def ello():
-    winner_id = int(request.form['winner_id'])
-    loser_id = int(request.form['loser_id'])
+    voteform = VoteForm()
+    if voteform.validate_on_submit():
+        winner_id = int(request.form['winner_id'])
+        loser_id = int(request.form['loser_id'])
 
-    k = 32
+        k = 32
 
-    def expected(higher_score,lower_score):
-        expected = 1 / (1 + 10**(float(lower_score - higher_score)/400))
-        return expected
+        def expected(higher_score,lower_score):
+            expected = 1 / (1 + 10**(float(lower_score - higher_score)/400))
+            return expected
 
-    # simplified elo
-    def score_change(winner_score,loser_score):
-        if winner_score >= loser_score:
-            e = expected(winner_score,loser_score)
-            score_change = k * (1-e)
-            score_change = round(score_change)
-            return score_change
+        # simplified elo
+        def score_change(winner_score,loser_score):
+            if winner_score >= loser_score:
+                e = expected(winner_score,loser_score)
+                score_change = k * (1-e)
+                score_change = round(score_change)
+                return score_change
+            else:
+                e = expected(loser_score,winner_score)
+                score_change = k * (1-(1-e))
+                score_change = round(score_change)
+                return score_change
+
+        def elo_mod(winner_score,loser_score,score_change):
+            updated_winner = winner_score + score_change
+            updated_loser = loser_score - score_change
+            return updated_winner,updated_loser
+
+        def calc_change(entry_score,updated_score):
+            last_change = updated_score - entry_score
+            return last_change
+
+        if (winner_id == session['person1_id'] and loser_id == session['person2_id']) or (winner_id == session['person2_id'] and loser_id == session['person1_id']):
+
+            winner_object = Person.query.filter_by(id=winner_id).first()
+            loser_object = Person.query.filter_by(id=loser_id).first()
+
+            winner_score = winner_object.score
+            loser_score = loser_object.score
+
+
+            score_change = score_change(winner_score,loser_score)
+
+            if not loser_id == 6:
+
+                updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
+
+                winner_object.score = updated_winner_score
+                loser_object.score = updated_loser_score
+
+                winner_object.last_change = calc_change(winner_score,updated_winner_score)
+                loser_object.last_change = calc_change(loser_score,updated_loser_score)
+
+            # if user selects pete as loser!
+            else:
+                winner_object.score = winner_object.score - 9
+                loser_object.score = loser_object.score + 99
+
+                winner_object.last_change = -9
+                loser_object.last_change = 99
+
+
+            # create new transaction // must be AFTER score_change is calculated
+            new_transaction = Transaction(voter_id=current_user.id,
+                                          winner_id=winner_id,
+                                          loser_id=loser_id,
+                                          winner_score=winner_score,
+                                          loser_score=loser_score,
+                                          score_change=score_change)
+
+            # create new score_history transaction
+            new_score_history1 = ScoreHistory(person_id=winner_id,score=winner_score)
+            new_score_history2 = ScoreHistory(person_id=loser_id,score=loser_score)
+
+            db.session.add(new_transaction)
+            db.session.add(new_score_history1)
+            db.session.add(new_score_history2)
+
+            # commit all to database
+            db.session.commit()
+
+            return redirect(url_for('index'))
         else:
-            e = expected(loser_score,winner_score)
-            score_change = k * (1-(1-e))
-            score_change = round(score_change)
-            return score_change
-
-    def elo_mod(winner_score,loser_score,score_change):
-        updated_winner = winner_score + score_change
-        updated_loser = loser_score - score_change
-        return updated_winner,updated_loser
-
-    def calc_change(entry_score,updated_score):
-        last_change = updated_score - entry_score
-        return last_change
-
-    if (winner_id == session['person1_id'] and loser_id == session['person2_id']) or (winner_id == session['person2_id'] and loser_id == session['person1_id']):
-
-        winner_object = Person.query.filter_by(id=winner_id).first()
-        loser_object = Person.query.filter_by(id=loser_id).first()
-
-        winner_score = winner_object.score
-        loser_score = loser_object.score
-
-
-        score_change = score_change(winner_score,loser_score)
-
-        if not loser_id == 6:
-
-            updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
-
-            winner_object.score = updated_winner_score
-            loser_object.score = updated_loser_score
-
-            winner_object.last_change = calc_change(winner_score,updated_winner_score)
-            loser_object.last_change = calc_change(loser_score,updated_loser_score)
-
-        # if user selects pete as loser!
-        else:
-            winner_object.score = winner_object.score - 9
-            loser_object.score = loser_object.score + 99
-
-            winner_object.last_change = -9
-            loser_object.last_change = 99
-
-
-        # create new transaction // must be AFTER score_change is calculated
-        new_transaction = Transaction(voter_id=current_user.id,
-                                      winner_id=winner_id,
-                                      loser_id=loser_id,
-                                      winner_score=winner_score,
-                                      loser_score=loser_score,
-                                      score_change=score_change)
-
-        # create new score_history transaction
-        new_score_history1 = ScoreHistory(person_id=winner_id,score=winner_score)
-        new_score_history2 = ScoreHistory(person_id=loser_id,score=loser_score)
-
-        db.session.add(new_transaction)
-        db.session.add(new_score_history1)
-        db.session.add(new_score_history2)
-
-        # commit all to database
-        db.session.commit()
-
-        return redirect(url_for('index'))
+            return redirect(url_for('imsorrydave'))
     else:
         return redirect(url_for('imsorrydave'))
 
