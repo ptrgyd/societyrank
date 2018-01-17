@@ -3,14 +3,23 @@
 {% block content %}
 <div style="max-width:400px; border-top:0px solid gainsboro; padding-top:5;">
 <!-- <img src="{{url_for('static',filename='elo.jpg')}}" style="height:140px;padding:5 10 0 0; float:left;" class="w3-hover-sepia"/> -->
-<i>Elo scoring</i> is the eponymous scoring system devised by chess master and physics professor Arpad Elo. If you have a score 400 points greater than your opponent, you are roughly 9 times more likely to win over your opponent. <br /><br />So, for every one hundred games played between the 800-point player and 400-point player, ninety games (90%) will go to the 800 pointer.<br /><br />
 
-Similarly, for every hundred games played between the 1200 pointer and 400 pointer, 99 will go to the 1200 pointer.
+<h3>Methodology</h3>
 
-<br /><br />
-Thus, in <b>SocietyRank</b>, a difference of 400 means that for every ten hangs, any given individual is ~9x times more likely to select the higher scored society member. Fortunately, real-world hangs are not subject to such constraints. Happy ranking!
+<p><em>Elo scoring</em> is the eponymous scoring system of physics professor and chess grandmaster Arpad Elo. It was developed to predict the outcome of a match between any two players, given their current Elo scores.</p>
 
-<br /><br />Muuuuuhahahahaha!
-&#8212;pmg, 2017 december 7
-</div>
+<p>All members of a set begin with a default score of 800. The premise is simple: once you log in, you will be presented with random pairings from Society; all you must do is choose – with which of the two members would you prefer to khhhhhhhang one?</p>
+
+<p>Once you cast your vote, the computer increments and deducts a certain number of points to the respective winner and loser of the match. As more votes are cast, the cream begins to rise to the top. <a href="https://www.youtube.com/watch?v=mzrBAM9LH0M" target="_blank">All that hot white cream inside you</a>, it rrrRRRRRRRISES!!</p>
+
+<h3>Interpretation</h3>
+
+<p>A player who attains a score 400 points higher than another can be said to be ~9x more preferable. In other words, for every 100 matches between Player A (1200 pts) and Player B (800 pts), the Elo system predicts 90 matches go to Player A.</p>
+
+<p>Thus, in <strong>SocietyRank</strong>, a difference of 400 means the higher scored society member is ~9x times more likely to be selected. Fortunately, real-world hangs are not subject to such constraints. Happy ranking!</p>
+
+<p>Muuuuuhahahahaha!<br />—pmg, 2018 january 17</p>
+
+
+
 {% endblock %}
