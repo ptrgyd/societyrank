@@ -15,7 +15,6 @@ from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
-# putting a comment
 # import urllib.parse # required for heroku
 # import psycopg2
 #
@@ -34,11 +33,6 @@ app.config.from_object(Config)
 moment = Moment(app)
 mail = Mail(app)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/societyrank'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/pmg/Documents/societyRank/societyrank.db'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://uhtlqlfibuxjfk:1190e4d33358058ac87b39216661f88fc8ff512f15a213dee7d11f0e67d3633c@ec2-184-73-202-112.compute-1.amazonaws.com:5432/d1gosfmdivcf2k'
-
-# app.debug = True
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # app.config['SQLALCHEMY_RECORD_QUERIES'] = True
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
@@ -57,6 +51,7 @@ class Person(db.Model):
     last_change = db.Column(db.Integer,default=0)
     firstname = db.Column(db.String(50))
     lastname = db.Column(db.String(50))
+    descrip = db.Column(db.String(1000))
 
 class User(UserMixin,db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -144,15 +139,19 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/profile/<person_id>/<full>',methods=['GET','POST'])
 @app.route('/profile/<person_id>',methods=['GET','POST'])
-def profile(person_id):
+def profile(person_id,full=None):
     random_color = random.choice(colors_list) # think i can put this variable in request
 
     person_id = int(person_id)
     person = Person.query.filter_by(id=person_id).first()
     comments = Comments.query.filter_by(person_id=person_id).order_by(desc(Comments.id)).all()
 
-    scorehistory = ScoreHistory.query.filter_by(person_id=person_id).order_by(desc(ScoreHistory.id)).all()
+    if full == None:
+        scorehistory = ScoreHistory.query.filter_by(person_id=person_id).order_by(desc(ScoreHistory.id)).limit(20)
+    else:
+        scorehistory = ScoreHistory.query.filter_by(person_id=person_id).order_by(desc(ScoreHistory.id)).all()
 
     commentbox = CommentBox()
 
@@ -180,7 +179,8 @@ def profile(person_id):
                                           commentbox=commentbox,
                                           current_time=datetime.utcnow(),
                                           random_color=random_color,
-                                          scorehistory=scorehistory,)
+                                          scorehistory=scorehistory,
+                                          full=full)
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
                  'You are a god -- A GOLDEN GOD!',
