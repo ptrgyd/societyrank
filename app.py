@@ -15,18 +15,18 @@ from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
-# import urllib.parse # required for heroku
-# import psycopg2
-#
-# urllib.parse.uses_netloc.append("postgres")
-# url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-# conn = psycopg2.connect(
-#  database=url.path[1:],
-#  user=url.username,
-#  password=url.password,
-#  host=url.hostname,
-#  port=url.port
-# )
+import urllib.parse # required for heroku
+import psycopg2
+
+urllib.parse.uses_netloc.append("postgres")
+url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+conn = psycopg2.connect(
+ database=url.path[1:],
+ user=url.username,
+ password=url.password,
+ host=url.hostname,
+ port=url.port
+)
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -386,5 +386,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8800, debug=True)
+    app.run()
     # host='0.0.0.0', port=8800, debug=True
