@@ -15,6 +15,10 @@ h3 {
     padding: 0 0 0 0;
     border: 0;
     outline: 0;}
+/* #page-wrap {
+         width: 1200px;
+         margin: 0 auto;
+} */
 #container {
   margin: 0 0 0 0;
   padding: 4 15 0 15;
@@ -29,26 +33,32 @@ h3 {
     }
 a, a:visited{color:steelblue;text-decoration:none;}
 a:hover{color:red;text-decoration: underline;}
+
+a.home:link, a.home:visited{color:black;text-decoration:none;}
+a.home:hover,a.home:active{color:black;text-decoration:none;}
+
 table,td{
     border-collapse:collapse;
     vertical-align: text-bottom;
 }
-
 </style>
+
+<title>SOCIETYRANK</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery-3.2.1.min.js') }}">\x3C/script>')</script>
 {{ moment.include_moment() }}
 </header>
 
 <body>
+<center>
+  
 <div id="head">
-<h1><span style="color:{{random_color}}">Society</span>Rank</h1>
+<h1><a href="{{url_for('index')}}" class="home"><span style="color:{{random_color}}">Society</span>Rank</a></h1>
 </div>
 
 <div id="container">
 <a href="{{url_for('about')}}">about</a> |
-<a href="{{url_for('rankings')}}">rankings</a> |
-<a href="{{url_for('index')}}">index</a>
+<a href="{{url_for('index')}}">home</a>
 
 {% if current_user.id == 1 %}
 { <a href="{{url_for('transactions')}}">transactions</a>/<a href="/sendmails/0">send_mails</a> }
@@ -60,4 +70,5 @@ table,td{
 {% endblock %}
 </div>
 
+</center>
 </body>

@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
+<center>
+  
 <script type="text/javascript">
 $(function(){
  $(document).keypress(function (e) {
@@ -20,12 +21,6 @@ $(function(){
 
 });
 </script>
-
-{% if not current_user.is_anonymous %}
-Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout')}}">logout</a>
-<br /><br />
-{% endif %}
-
 
 
 {% if current_user.is_anonymous %}
@@ -54,9 +49,15 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
     </form>
 
 {% else %}
+Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout')}}">logout</a><br />
+Your current Elo score is <span style="font-family:monospace;background-color:yellow;">{{current_user.person.score}}</span><br />
+Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (Maybe someone left you a comment, eh?)
+<br /><br />
 <!-- <i>For maximum voting efficiency, you can press <span style="font-family:monospace;font-style:normal;background-color:yellow;">1</span> or <span style="font-family:monospace;font-style:normal;">2</span> on your keyboard.</i> -->
-<div style="background-color:palegreen; padding:15 0 15 15;">
+<div style="background-color:palegreen; padding:15 0 15 0;">
     {% if current_user.votes_left > 0 %}
+    <center>
+    <span style="font-family:monospace;font-size:24px;">You have <b>{{current_user.votes_left}}</b> votes left.</span><br /><br />
     <table>
       <tr>
         <td>
@@ -79,19 +80,30 @@ Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout'
       </tr>
       <tr><td style="text-align:center">press #1</td><td></td><td style="text-align:center">press #2</td></tr>
     </table>
-        <br />
-        <span style="font-family:monospace;">You have {{current_user.votes_left}} votes left.</span><br />
     {% else %}
         No more votes for you! Thanks for playing.
     {% endif %}
+    </center>
 </div>
+<br />
 {% endif %}
 
-<br />
-<table style="border:0px solid black;border-collapse:collapse;">
+<table style="border-collapse:collapse;vertical-align:text-top;">
 {% for e in current_rankings %}
 
-<tr>
+<tr style="border-bottom:;">
+
+<td style="text-align:right;width:40px;padding-right:4px;padding-left:0px;">
+<span style="font-family:monospace;background-color:yellow;">{{e.score}}</span>
+</td>
+
+<td style="padding:0 10 0 6;">#{{loop.index}}</td>
+
+<td>
+<span style="color:steelblue;">
+  <a href="/profile/{{e.id}}">{{e.genus}} {{e.species}}</a>
+</span> (&ldquo;{{e.nickname}}&rdquo;)
+</td>
 
 <td style="text-align:right;">
 <span style="font-family:;font-size:12px;color:
@@ -102,15 +114,6 @@ red;background-color:lavenderblush;">&nbsp;
 {% endif %}{{e.last_change}}&nbsp;</span>
 </td>
 
-<td style="text-align:right;width:40px;padding-right:4px;padding-left:18px;">
-<span style="font-family:monospace;background-color:yellow;">{{e.score}}</span>
-</td>
-
-<td>
-<span style="color:steelblue;">
-  <a href="/profile/{{e.id}}">{{e.genus}} {{e.species}}</a>
-</span> (&ldquo;{{e.nickname}}&rdquo;)
-</td>
 </tr>
 
 {% endfor %}
@@ -119,5 +122,5 @@ red;background-color:lavenderblush;">&nbsp;
 <br /><br /><br /><br /><br /><br /><br /><br />
 
 
-
+</center>
 {% endblock %}

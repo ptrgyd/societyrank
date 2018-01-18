@@ -17,7 +17,6 @@ from flask_mail import Mail,Message
 # THIS BLOCK REQUIRED FOR HEROKU
 import urllib.parse # required for heroku
 import psycopg2
-
 urllib.parse.uses_netloc.append("postgres")
 url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
 conn = psycopg2.connect(

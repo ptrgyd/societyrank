@@ -11,11 +11,9 @@ you worried broh?<br /><br />
 <span style="background-color:yellow;">Your current Elo ranking is <span style="font-family:monospace;font-size:14px;font-weight:bold;">{{current_user.person.score}}</span>.</span><br /><br />
 {% endif %}
 
-<ol style="margin:0 0 0 -9;">
 {% for x in current_rankings %}
-<li><a href="/profile/{{x.id}}">{{x.genus}} {{x.species}}</a>, <span style="font-family:monospace;">{{x.score}}</span></li>
+<span style="font-size:12px;font-family:monospace;">#{{loop.index}}</span>&nbsp;<a href="/profile/{{x.id}}">{{x.firstname}} {{x.lastname}}</a>, <span style="font-family:monospace;">{{x.score}}</span><br />
 {% endfor %}
-</ol>
 
 <br /><br /><br /><br /><br /><br />
 {% endblock %}

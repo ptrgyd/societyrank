@@ -4,7 +4,7 @@
 
 <span style="color:;"><h3>Welcome to the profile page of <span style="font-family:courier;font-weight:100;background-color:palegreen;">&nbsp;{{person.nickname}}&nbsp;</span></h3></span><br />
 
-<table style="vertical-align:bottom;">
+<table style="vertical-align:bottom;max-width:500px;">
 <tr><td><span style="font-family:monospace;">scientific name:&nbsp;</span></td><td><i>{{person.genus}} {{person.species}}</i></td></tr>
 <tr><td><span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;common name:&nbsp;</span></td><td>{{person.firstname}} {{person.lastname}}</td></tr>
 {% if not person.descrip == None %}
@@ -13,26 +13,30 @@
 <td>{{person.descrip}}</td>
 </tr>
 {% endif %}
+
+<tr><td></td><td><br />
+  {% if not full == None %}
+  <div style="margin-bottom:8px;"><a href="{{url_for('profile',person_id=person_id)}}" style="font-style:italic;">see less</a></div>
+  {% endif %}
+  <span style="font-family:monospace;background-color:gainsboro;font-size:9px;">
+
+  <span style="background-color:lime;">
+  {% for n in range( (( person.score / 10 )|round)|int - 40 ) %}&nbsp;{% endfor %}{{person.score}}</span><br />
+
+  {% for x in scorehistory %}
+  {% for i in range( (( x.score / 10 )|round)|int - 40 ) %}&nbsp;{% endfor %}{{ x.score }}<br />
+  {% endfor %}
+  <br />
+  </span>
+  {% if full == None %}
+  <a href="{{url_for('profile',person_id=person_id,full='full')}}" style="font-style:italic;">see full score history?</a><br />
+  <br />
+  {% endif %}
+
+</td></tr>
+
 </table>
 <br />
-
-{% if not full == None %}
-<div style="margin-bottom:8px;"><a href="{{url_for('profile',person_id=person_id)}}" style="font-style:italic;">see less</a></div>
-{% endif %}
-<span style="font-family:monospace;background-color:gainsboro;font-size:9px;">
-
-<span style="background-color:lime;">
-{% for n in range( (( person.score / 10 )|round)|int - 40 ) %}&nbsp;{% endfor %}{{person.score}}</span><br />
-
-{% for x in scorehistory %}
-{% for i in range( (( x.score / 10 )|round)|int - 40 ) %}&nbsp;{% endfor %}{{ x.score }}<br />
-{% endfor %}
-<br />
-</span>
-{% if full == None %}
-<a href="{{url_for('profile',person_id=person_id,full='full')}}" style="font-style:italic;">see full score history?</a><br />
-<br />
-{% endif %}
 
 {% if current_user.is_anonymous == False and current_user.person_id != person_id|int %}
   {% if current_user.comments_left > 0 %}
