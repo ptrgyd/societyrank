@@ -15,17 +15,17 @@ from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
-import urllib.parse # required for heroku
-import psycopg2
-urllib.parse.uses_netloc.append("postgres")
-url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-conn = psycopg2.connect(
- database=url.path[1:],
- user=url.username,
- password=url.password,
- host=url.hostname,
- port=url.port
-)
+# import urllib.parse # required for heroku
+# import psycopg2
+# urllib.parse.uses_netloc.append("postgres")
+# url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+# conn = psycopg2.connect(
+#  database=url.path[1:],
+#  user=url.username,
+#  password=url.password,
+#  host=url.hostname,
+#  port=url.port
+# )
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -182,13 +182,10 @@ def profile(person_id,full=None):
                                           full=full)
 
 pete_comments = ['You are a god -- A GOLDEN GOD!',
-                 'You are a god -- A GOLDEN GOD!',
-                 'You are a god -- A GOLDEN GOD!',
-                 'You are a god -- A GOLDEN GOD!',
                  'Your genius knows no bounds.',
                  'WE ARE NOT WORTHY!',
                  'I supplicate myself before you, forever and always.',
-                 'For God, For Country, For Pete.']
+                 'I wish you were my dad.']
 
 colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink']
 
@@ -217,6 +214,8 @@ def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=Non
             return person1,person2
 
     current_rankings = get_current_rankings()
+    recent_comments = Comments.query.order_by(desc(Comments.id)).limit(30)
+    recent_votes = Transaction.query.order_by(desc(Transaction.id)).limit(30)
 
     if not current_user.is_anonymous:
 
@@ -242,13 +241,18 @@ def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=Non
         voteform1 = VoteForm()
         voteform2 = VoteForm()
 
+
+
     return render_template('index.html',
                            random_color=random_color,
                            x=x,y=y,
                            current_rankings=current_rankings,
                            wtfform=wtfform,
                            voteform1=voteform1,
-                           voteform2=voteform2)
+                           voteform2=voteform2,
+                           recent_comments=recent_comments,
+                           recent_votes=recent_votes,
+                           current_time=datetime.utcnow())
     # index refresh queries database to reflect new scores
 
 @app.route('/sendmails/<user_id>')
@@ -329,10 +333,10 @@ def ello():
             # if user selects pete as loser!
             else:
                 winner_object.score = winner_object.score - 9
-                loser_object.score = loser_object.score + 99
+                loser_object.score = loser_object.score + 9
 
                 winner_object.last_change = -9
-                loser_object.last_change = 99
+                loser_object.last_change = 9
 
 
             # create new transaction // must be AFTER score_change is calculated
@@ -375,7 +379,8 @@ def imsorrydave():
 @login_required
 def transactions():
     if current_user.id == 1:
-        return render_template('transactions.html',transactions=Transaction.query.all())
+        transactions = Transaction.query.order_by(Transaction.id).all()
+        return render_template('transactions.html',transactions=transactions)
     else:
         return redirect(url_for('imsorrydave'))
 
@@ -385,5 +390,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8800, debug=True)
     # host='0.0.0.0', port=8800, debug=True

@@ -2,26 +2,6 @@
 
 {% block content %}
 <center>
-  
-<script type="text/javascript">
-$(function(){
- $(document).keypress(function (e) {
- var key = e.which;
- if(key == 49)
-  {
-    $('input[name = person1]').click();
-    return false;
-  }
- if(key == 50)
- {
-   $('input[name = person2]').click();
-   return false;
- }
-});
-
-});
-</script>
-
 
 {% if current_user.is_anonymous %}
     <span style="color:red;background-color:floralwhite;">You must be logged in to vote, broh.</span>
@@ -49,8 +29,28 @@ $(function(){
     </form>
 
 {% else %}
+<!-- only need keyboard shortcuts after log in; o/w prevents typing of '1','2' on login form -->
+<script type="text/javascript">
+$(function(){
+ $(document).keypress(function (e) {
+ var key = e.which;
+ if(key == 49)
+  {
+    $('input[name = person1]').click();
+    return false;
+  }
+ if(key == 50)
+ {
+   $('input[name = person2]').click();
+   return false;
+ }
+});
+
+});
+</script>
+
 Welcome <b>{{current_user.username}}</b>.&nbsp;&nbsp;<a href="{{url_for('logout')}}">logout</a><br />
-Your current Elo score is <span style="font-family:monospace;background-color:yellow;">{{current_user.person.score}}</span><br />
+Your current SocietyRank score is <span style="font-family:monospace;background-color:yellow;">{{current_user.person.score}}</span><br />
 Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (Maybe someone left you a comment, eh?)
 <br /><br />
 <!-- <i>For maximum voting efficiency, you can press <span style="font-family:monospace;font-style:normal;background-color:yellow;">1</span> or <span style="font-family:monospace;font-style:normal;">2</span> on your keyboard.</i> -->
@@ -88,6 +88,8 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
 <br />
 {% endif %}
 
+<section style="width:100%;">
+<div style="float:left;width:50%;">
 <table style="border-collapse:collapse;vertical-align:text-top;">
 {% for e in current_rankings %}
 
@@ -101,25 +103,39 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
 
 <td>
 <span style="color:steelblue;">
-  <a href="/profile/{{e.id}}">{{e.genus}} {{e.species}}</a>
-</span> (&ldquo;{{e.nickname}}&rdquo;)
+  <a href="/profile/{{e.id}}">{{e.nickname}}</a>&nbsp;&nbsp;&nbsp;
+</span>
 </td>
 
 <td style="text-align:right;">
-<span style="font-family:;font-size:12px;color:
-{% if e.last_change >= 0 %}
-green;background-color:lightgreen;">&nbsp;&plus;
-{% else %}
-red;background-color:lavenderblush;">&nbsp;
-{% endif %}{{e.last_change}}&nbsp;</span>
+<span style="font-family:;font-size:12px;color:{% if e.last_change >= 0 %}green;background-color:lightgreen;">&nbsp;&plus;{% else %}red;background-color:lavenderblush;">&nbsp;{% endif %}{{e.last_change}}&nbsp;</span>
 </td>
 
 </tr>
 
 {% endfor %}
 </table>
-
 <br /><br /><br /><br /><br /><br /><br /><br />
+
+</div>
+
+<div style="float:right;width:50%;">
+<span style="color:red;">recent comments</span><br />
+{% for x in recent_comments %}
+<span style="font-family:monospace;">{{x.comment}} -->&nbsp;</span>
+<a href="/profile/{{x.person_id}}">{{x.about.nickname}}</a><br />
+{% endfor %}
+
+<br />
+
+<span style="color:red;">recent votes</span><br />
+{% for x in recent_votes %}
+<span style="background-color:rgba(0, 255, 0, 0.25);">{{x.winner.nickname}}</span> 
+<i>&nbsp;&nbsp;v.&nbsp;&nbsp;</i> 
+<span style="background-color:rgba(255, 0, 0, 0.25);">{{x.loser.nickname}}</span><br />
+{% endfor %}
+</div>
+</section>
 
 
 </center>

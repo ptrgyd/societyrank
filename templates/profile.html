@@ -4,13 +4,13 @@
 
 <span style="color:;"><h3>Welcome to the profile page of <span style="font-family:courier;font-weight:100;background-color:palegreen;">&nbsp;{{person.nickname}}&nbsp;</span></h3></span><br />
 
-<table style="vertical-align:bottom;max-width:500px;">
-<tr><td><span style="font-family:monospace;">scientific name:&nbsp;</span></td><td><i>{{person.genus}} {{person.species}}</i></td></tr>
+<table style="vertical-align:bottom;max-width:;">
+<tr><td style="width:;"><span style="font-family:monospace;">scientific name:&nbsp;</span></td><td><i>{{person.genus}} {{person.species}}</i></td></tr>
 <tr><td><span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;common name:&nbsp;</span></td><td>{{person.firstname}} {{person.lastname}}</td></tr>
 {% if not person.descrip == None %}
 <tr>
 <td><span style="font-family:monospace;">&nbsp;&nbsp;&nbsp;&nbsp;description:&nbsp;</span></td>
-<td>{{person.descrip}}</td>
+<td style="max-width:400px;">{{person.descrip}}</td>
 </tr>
 {% endif %}
 
