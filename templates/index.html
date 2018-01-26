@@ -88,8 +88,8 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
 <br />
 {% endif %}
 
-<section style="width:100%;">
-<div style="float:left;width:50%;">
+<div class="thesection">
+<div class="rankings">
 <table style="border-collapse:collapse;vertical-align:text-top;">
 {% for e in current_rankings %}
 
@@ -115,11 +115,12 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
 
 {% endfor %}
 </table>
-<br /><br /><br /><br /><br /><br /><br /><br />
+
+<br /><br />
 
 </div>
 
-<div style="float:right;width:50%;">
+<div class="recent-activity">
 <span style="color:red;">recent comments</span><br />
 {% for x in recent_comments %}
 <span style="font-family:monospace;">{{x.comment}} -->&nbsp;</span>
@@ -134,9 +135,11 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
 <i>&nbsp;&nbsp;v.&nbsp;&nbsp;</i> 
 <span style="background-color:rgba(255, 0, 0, 0.25);">{{x.loser.nickname}}</span><br />
 {% endfor %}
+<br /><br /><br />
 </div>
-</section>
+</div>
 
+<br /><br /><br /><br /><br /><br />
 
 </center>
 {% endblock %}

@@ -15,17 +15,17 @@ from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
-import urllib.parse # required for heroku
-import psycopg2
-urllib.parse.uses_netloc.append("postgres")
-url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-conn = psycopg2.connect(
- database=url.path[1:],
- user=url.username,
- password=url.password,
- host=url.hostname,
- port=url.port
-)
+# import urllib.parse # required for heroku
+# import psycopg2
+# urllib.parse.uses_netloc.append("postgres")
+# url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+# conn = psycopg2.connect(
+#  database=url.path[1:],
+#  user=url.username,
+#  password=url.password,
+#  host=url.hostname,
+#  port=url.port
+# )
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -215,7 +215,7 @@ def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=Non
 
     current_rankings = get_current_rankings()
     recent_comments = Comments.query.order_by(desc(Comments.id)).limit(30)
-    recent_votes = Transaction.query.order_by(desc(Transaction.id)).limit(30)
+    recent_votes = Transaction.query.order_by(desc(Transaction.id)).limit(60)
 
     if not current_user.is_anonymous:
 
@@ -379,7 +379,7 @@ def imsorrydave():
 @login_required
 def transactions():
     if current_user.id == 1:
-        transactions = Transaction.query.order_by(Transaction.id).all()
+        transactions = Transaction.query.order_by(desc(Transaction.id)).all()
         return render_template('transactions.html',transactions=transactions)
     else:
         return redirect(url_for('imsorrydave'))
@@ -390,5 +390,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8800, debug=True)
     # host='0.0.0.0', port=8800, debug=True

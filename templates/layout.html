@@ -33,6 +33,24 @@ h3 {
         width:;
         border-bottom: 1px solid #eee;
     }
+
+.thesection{width:100%;}
+.rankings{float:left;width:50%;}
+.recent-activity{float:right;width:50%;}
+
+@media(max-width:767px) {
+    .thesection {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .rankings {
+        width:100%;
+    }
+    .recent-activity {
+        width:100%;
+    }
+}
+
 a, a:visited{color:steelblue;text-decoration:none;}
 a:hover{color:red;text-decoration: underline;}
 

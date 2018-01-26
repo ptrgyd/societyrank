@@ -4,10 +4,10 @@
 <br />
 {% for x in transactions %}
 {{x.id}}.&nbsp;
-<span style="color:steelblue">{{x.user.username}}</span> :&nbsp;
-<span style="background-color:lightgreen;">{{x.winner.nickname}},{{x.winner.species}}</span>
+<span style="color:steelblue"><a href="/profile/{{x.user.person_id}}">{{x.user.username}}</a></span> :&nbsp;
+<span style="background-color:lightgreen;">{{x.winner.nickname}}</span>
  <i>v.</i>&nbsp;
-<span style="background-color:pink;">{{x.loser.nickname}},{{x.loser.species}}</span>
+<span style="background-color:pink;">{{x.loser.nickname}}</span>
 <br />
 {% endfor %}
 
