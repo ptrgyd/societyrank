@@ -390,5 +390,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8800, debug=True)
+    app.run()
     # host='0.0.0.0', port=8800, debug=True
