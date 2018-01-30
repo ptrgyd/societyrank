@@ -35,14 +35,17 @@ h3 {
     }
 
 .thesection{width:100%;}
+.announcements{width:100%;padding:14 0 16 0}
 .rankings{float:left;width:50%;}
 .recent-activity{float:right;width:50%;}
+.footer{font-size:;text-align: center;}
 
 @media(max-width:767px) {
     .thesection {
         display: flex;
         flex-wrap: wrap;
     }
+    .announcements{width:100%;}
     .rankings {
         width:100%;
     }
@@ -88,8 +91,19 @@ table,td{
 
 {% block content %}
 {% endblock %}
+
 </div>
 
 </center>
+
+{% block footer %}
+<div class="footer">
+  <br />
+  SocietyRank is an <a href="http://ivyticket.com" target="_blank" style="text-decoration:;color:red;font-style:italic;">IvyTicket</a> production.<br />
+  <i>&ldquo;IvyTicket! For all your academic admissions needs!&rdquo;</i>
+  <br /><br />
+</div>
+{% endblock %}
+
 </body>
 </html>

@@ -85,10 +85,10 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
     {% endif %}
     </center>
 </div>
-<br />
 {% endif %}
 
 <div class="thesection">
+<div class="announcements">A total of<span style="font-family:monospace;">&nbsp;<span style="background-color:pink;">{{"{:,}".format(system_votes) }} votes</span>&nbsp;</span>have been cast so far.</div>
 <div class="rankings">
 <table style="border-collapse:collapse;vertical-align:text-top;">
 {% for e in current_rankings %}
@@ -139,7 +139,7 @@ Check out <a href="/profile/{{current_user.person.id}}">your profile page</a>. (
 </div>
 </div>
 
-<br /><br /><br /><br /><br /><br />
+
 
 </center>
 {% endblock %}

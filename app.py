@@ -146,6 +146,8 @@ def profile(person_id,full=None):
     person_id = int(person_id)
     person = Person.query.filter_by(id=person_id).first()
     comments = Comments.query.filter_by(person_id=person_id).order_by(desc(Comments.id)).all()
+    wins = Transaction.query.filter_by(winner_id=person_id).order_by(desc(Transaction.loser_id)).all()
+    losses = Transaction.query.filter_by(loser_id=person_id).order_by(desc(Transaction.winner_id)).all()
 
     if full == None:
         scorehistory = ScoreHistory.query.filter_by(person_id=person_id).order_by(desc(ScoreHistory.id)).limit(20)
@@ -153,14 +155,14 @@ def profile(person_id,full=None):
         scorehistory = ScoreHistory.query.filter_by(person_id=person_id).order_by(desc(ScoreHistory.id)).all()
 
     commentbox = CommentBox()
-
     if commentbox.validate_on_submit():
         current_user.comments_left = decrement(current_user.comments_left)
+        comment = commentbox.comment.data
 
-        if person_id == 6:
-            comment = random.choice(pete_comments)
-        else:
-            comment = commentbox.comment.data
+        # if person_id == 6:
+        #     comment = random.choice(pete_comments)
+        # else:
+        #     comment = commentbox.comment.data
 
         new_comment = Comments(person_id=person_id,
                                commenter_id=current_user.id,
@@ -168,24 +170,25 @@ def profile(person_id,full=None):
 
         db.session.add(new_comment)
         db.session.commit()
-
         return redirect(url_for('profile',person_id=person_id))
+    else:
+        return render_template('profile.html',comments=comments,
+                                              person=person,
+                                              person_id=person_id,
+                                              current_user=current_user,
+                                              commentbox=commentbox,
+                                              current_time=datetime.utcnow(),
+                                              random_color=random_color,
+                                              scorehistory=scorehistory,
+                                              full=full,
+                                              wins=wins,
+                                              losses=losses)
 
-    return render_template('profile.html',comments=comments,
-                                          person=person,
-                                          person_id=person_id,
-                                          current_user=current_user,
-                                          commentbox=commentbox,
-                                          current_time=datetime.utcnow(),
-                                          random_color=random_color,
-                                          scorehistory=scorehistory,
-                                          full=full)
-
-pete_comments = ['You are a god -- A GOLDEN GOD!',
-                 'Your genius knows no bounds.',
-                 'WE ARE NOT WORTHY!',
-                 'I supplicate myself before you, forever and always.',
-                 'I wish you were my dad.']
+# pete_comments = ['You are a god -- A GOLDEN GOD!',
+#                  'Your genius knows no bounds.',
+#                  'WE ARE NOT WORTHY!',
+#                  'I supplicate myself before you, forever and always.',
+#                  'I wish you were my dad.']
 
 colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink']
 
@@ -193,10 +196,16 @@ colors_list = ['red','limegreen','mediumorchid','dodgerblue','deeppink']
 def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=None):
     random_color = random.choice(colors_list)
 
+    vote_query = User.query.filter(User.votes_left>0).all()
+    system_votes_left = sum(x.votes_left for x in vote_query)
+    system_votes = 4700 - system_votes_left
+
     wtfform = LoginForm()
     if wtfform.validate_on_submit():
         username = wtfform.username.data
+        username = username.lower()
         pw = wtfform.password.data
+        pw = pw.lower()
         user = User.query.filter_by(username=username).first()
         if user is None or pw != user.pw:
             flash('Hmmm, either your username is wrong or your password is off.')
@@ -252,7 +261,8 @@ def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=Non
                            voteform2=voteform2,
                            recent_comments=recent_comments,
                            recent_votes=recent_votes,
-                           current_time=datetime.utcnow())
+                           current_time=datetime.utcnow(),
+                           system_votes=system_votes)
     # index refresh queries database to reflect new scores
 
 @app.route('/sendmails/<user_id>')
@@ -317,26 +327,35 @@ def ello():
             winner_score = winner_object.score
             loser_score = loser_object.score
 
-
             score_change = score_change(winner_score,loser_score)
+            
+            updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
 
-            if not loser_id == 6:
+            winner_object.score = updated_winner_score
+            loser_object.score = updated_loser_score
 
-                updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
+            winner_object.last_change = calc_change(winner_score,updated_winner_score)
+            loser_object.last_change = calc_change(loser_score,updated_loser_score)
+            
+            # SPECIAL CASE for PETE ELIMINATED
 
-                winner_object.score = updated_winner_score
-                loser_object.score = updated_loser_score
-
-                winner_object.last_change = calc_change(winner_score,updated_winner_score)
-                loser_object.last_change = calc_change(loser_score,updated_loser_score)
-
-            # if user selects pete as loser!
-            else:
-                winner_object.score = winner_object.score - 9
-                loser_object.score = loser_object.score + 9
-
-                winner_object.last_change = -9
-                loser_object.last_change = 9
+            # if not loser_id == 6:
+            # 
+            #     updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
+            # 
+            #     winner_object.score = updated_winner_score
+            #     loser_object.score = updated_loser_score
+            # 
+            #     winner_object.last_change = calc_change(winner_score,updated_winner_score)
+            #     loser_object.last_change = calc_change(loser_score,updated_loser_score)
+            # 
+            # # if user selects pete as loser!
+            # else:
+            #     winner_object.score = winner_object.score - 9
+            #     loser_object.score = loser_object.score + 9
+            # 
+            #     winner_object.last_change = -9
+            #     loser_object.last_change = 9
 
 
             # create new transaction // must be AFTER score_change is calculated
@@ -390,5 +409,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8800, debug=True)
     # host='0.0.0.0', port=8800, debug=True

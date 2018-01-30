@@ -68,7 +68,18 @@
   {% endfor %}
 {% endif %}
 
+<br /><br />
+<span style="background-color:palegreen;">&nbsp;{{person.nickname}} was victorious in battle {{wins|length}} times&nbsp;</span><br />
+{% for x in wins %}
+... <i>{{x.loser.nickname}}</i><br />
+{% endfor %}
 
+<br /><br />
+<span style="background-color:pink;">&nbsp;{{person.nickname}} suffered {{losses|length}} losses at the hands of&nbsp;</span><br />
+{% for x in losses %}
+... <i>{{x.winner.nickname}}</i><br />
+{% endfor %}
 
+<br />
 
 {% endblock %}
