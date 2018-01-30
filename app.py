@@ -198,7 +198,7 @@ def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=Non
 
     vote_query = User.query.filter(User.votes_left>0).all()
     system_votes_left = sum(x.votes_left for x in vote_query)
-    system_votes = 4700 - system_votes_left
+    system_votes = 4800 - system_votes_left
 
     wtfform = LoginForm()
     if wtfform.validate_on_submit():
