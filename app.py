@@ -15,17 +15,17 @@ from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
 # THIS BLOCK REQUIRED FOR HEROKU
-# import urllib.parse # required for heroku
-# import psycopg2
-# urllib.parse.uses_netloc.append("postgres")
-# url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-# conn = psycopg2.connect(
-#  database=url.path[1:],
-#  user=url.username,
-#  password=url.password,
-#  host=url.hostname,
-#  port=url.port
-# )
+import urllib.parse # required for heroku
+import psycopg2
+urllib.parse.uses_netloc.append("postgres")
+url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+conn = psycopg2.connect(
+ database=url.path[1:],
+ user=url.username,
+ password=url.password,
+ host=url.hostname,
+ port=url.port
+)
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -328,7 +328,7 @@ def ello():
             loser_score = loser_object.score
 
             score_change = score_change(winner_score,loser_score)
-            
+
             updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
 
             winner_object.score = updated_winner_score
@@ -336,24 +336,24 @@ def ello():
 
             winner_object.last_change = calc_change(winner_score,updated_winner_score)
             loser_object.last_change = calc_change(loser_score,updated_loser_score)
-            
+
             # SPECIAL CASE for PETE ELIMINATED
 
             # if not loser_id == 6:
-            # 
+            #
             #     updated_winner_score,updated_loser_score = elo_mod(winner_score,loser_score,score_change)
-            # 
+            #
             #     winner_object.score = updated_winner_score
             #     loser_object.score = updated_loser_score
-            # 
+            #
             #     winner_object.last_change = calc_change(winner_score,updated_winner_score)
             #     loser_object.last_change = calc_change(loser_score,updated_loser_score)
-            # 
+            #
             # # if user selects pete as loser!
             # else:
             #     winner_object.score = winner_object.score - 9
             #     loser_object.score = loser_object.score + 9
-            # 
+            #
             #     winner_object.last_change = -9
             #     loser_object.last_change = 9
 
@@ -409,5 +409,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8800, debug=True)
+    app.run()
     # host='0.0.0.0', port=8800, debug=True
