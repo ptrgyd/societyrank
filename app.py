@@ -14,7 +14,7 @@ from config import Config
 from forms import LoginForm,CommentBox,VoteForm
 from flask_mail import Mail,Message
 
-# THIS BLOCK REQUIRED FOR HEROKU
+# THIS BLOCK REQUIRED FOR HEROKU POSTGRES
 # import urllib.parse # required for heroku
 # import psycopg2
 # urllib.parse.uses_netloc.append("postgres")
@@ -197,8 +197,10 @@ def index(x=None,y=None,session1=None,session2=None,voteform1=None,voteform2=Non
     random_color = random.choice(colors_list)
 
     vote_query = User.query.filter(User.votes_left>0).all()
+    all_users = User.query.all()
+    system_votes_init = len(all_users) * 100
     system_votes_left = sum(x.votes_left for x in vote_query)
-    system_votes = 4800 - system_votes_left
+    system_votes = system_votes_init - system_votes_left
 
     wtfform = LoginForm()
     if wtfform.validate_on_submit():
@@ -409,5 +411,5 @@ def about():
     return render_template('about.html',random_color=random_color)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8800, debug=True)
+    app.run(host='0.0.0.0', port=8888, debug=True)
     # host='0.0.0.0', port=8800, debug=True
